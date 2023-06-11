@@ -1,0 +1,222 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Agents {% endblock %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+            <!-- settings/agents.html -->
+                <link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+            <!-- settings/agents.html -->
+{% endblock stylesheets %}
+
+{% block content %}
+                <!-- settings/agents.html -->
+                <!-- loader -->
+                <div id="overlay">
+                    <div class="cv-spinner">
+                        <span class="spinner"></span>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+                    <div class="d-block mb-4 mb-md-0">
+                        <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
+                            <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+                                <li class="breadcrumb-item">
+                                    <a href="#">
+                                        <svg class="icon icon-xxs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                                    </a>
+                                </li>
+                                <li class="breadcrumb-item"><a href="#">Settings</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Agents</li>
+                            </ol>
+                        </nav>
+                        <h2 class="h4">Agent List</h2>
+                        <p class="mb-0">Specify agent connectivity details for OpenALPR-Webhook to download high quality images from Rekor Scout Watchman Agent.</p>
+                    </div>
+                </div>
+                <div id="Agents"></div>
+
+                <!-- Modal -->
+                <div id="agentModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="agentModal" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <form method="PUT" id="agentEditForm"  enctype=multipart/form-data>
+                            <input type="hidden" id="id" name="id">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="agentModal">Edit Agent</h5>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="enabled" name="enabled">
+                                        <span class="sidebar-icon">
+                                            <a data-toggle="tooltip" title="Allow OpenALPR-Webhook to download images from this agent.">
+                                                <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                    <path clip-rule="evenodd" fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path>
+                                                </svg>
+                                            </a>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row mt-2">
+                                        <div class="col-sm-6">
+                                            <label class="form-label">
+                                                UID
+                                                <span class="sidebar-icon">
+                                                    <a data-toggle="tooltip" title="This field is generated and reported by Rekor Watchman Agent. This field cannot be changed.">
+                                                        <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                            <path clip-rule="evenodd" fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path>
+                                                        </svg>
+                                                    </a>
+                                                </span>
+                                            </label>
+                                            <input type="text" id="agent_uid" name="agent_uid" class="form-control" readonly>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="form-label">
+                                                Label
+                                                <span class="sidebar-icon">
+                                                    <a data-toggle="tooltip" title="This field is reported and managed by Rekor Watchman Agent. Changes must be made with the corresponding Rekor Watchman Agent.">
+                                                        <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                            <path clip-rule="evenodd" fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path>
+                                                        </svg>
+                                                    </a>
+                                                </span>
+                                            </label>
+                                            <input type="text" id="agent_label" name="agent_label" class="form-control" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-sm-6">
+                                            <label class="form-label">IP/Hostname</label>
+                                            <input type="text" id="ip_hostname" name="ip_hostname" class="form-control">
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="form-label">Port</label>
+                                            <input type="number" id="port" name="port" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-sm-6">
+                                            <label class="form-label">First Seen</label>
+                                            <input type="text" id="created" name="created" class="form-control" readonly>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="form-label">Last Seen</label>
+                                            <input type="text" id="last_seen" name="last_seen" class="form-control" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn  btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn  btn-primary">Save Changes</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <!-- settings/agents.html -->
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+            <!-- settings/agents.html -->
+            <script src="//unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+            <script>
+                function getAgent(value){
+                    $.ajax({
+                        url : "{{ url_for('agents.edit') }}",
+                        type : 'GET',
+                        data : {'id': value},
+                        dataType:'json',
+                        success : function(data) {
+                            $('#id').val(data['id'])
+                            $('#agent_uid').val(data['agent_uid'])
+                            $('#agent_label').val(data['agent_label'])
+                            $('#ip_hostname').val(data['ip_hostname'])
+                            $('#port').val(data['port'])
+                            $('#created').val(data['created'])
+                            $('#last_seen').val(data['last_seen'])
+                            if (data['enabled'] === true && data['enabled'] != null){
+                                $('#enabled').prop('checked', true);
+                            } else {
+                                $('#enabled').prop('checked', '');
+                            }
+                        },
+                            error : function(request,error){
+                                Swal.fire( {icon: 'error',text: JSON.parse(request.responseText)['error']})
+                            }
+                    })
+                }
+                // edit agent
+                $('#agentEditForm').on('submit',function (e) {
+                    var formData = new FormData($("#agentEditForm")[0]);
+                    e.preventDefault();
+                    $.ajax({
+                        type: 'PUT',
+                        url:  "{{ url_for('agents.edit') }}",
+                        data: formData,
+                        async: true,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        error : function(request,error) {
+                            Swal.fire( {icon: 'error', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: JSON.parse(request.responseText)['error']})
+                        },
+                        success : function(res) {
+                            Swal.fire( {icon: 'success', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: res['message']}).then(() => {
+                                    location.reload();
+                            });
+                        }
+                    })
+                });
+
+                $(document).ready(function(){
+                    $('[data-toggle="tooltip"]').tooltip();
+                });
+                const updateUrl = (prev, query) => {
+                    return prev + (prev.indexOf('?') >= 0 ? '&' : '?') + new URLSearchParams(query).toString();
+                };
+
+                new gridjs.Grid({
+                    columns: [
+                        { id: 'id', name:'ID', hidden: true, sort: false },
+                        { id: 'agent_uid', name: 'UID', sort: false },
+                        { id: 'agent_label', name: 'Label', sort: false },
+                        { id: 'ip_hostname', name: 'IP/Hostname', sort: false},
+                        { id: 'port', name: 'Port', sort: false},
+                        { id: 'created', name: 'First Seen', sort: false},
+                        { id: 'last_seen', name: 'Last Seen', sort: false },
+                        { name: 'Actions',
+                            formatter: (cell, row) => {
+                            return gridjs.html(`<button type="button" data-bs-toggle="modal" data-bs-target="#agentModal" id="editAgent_${row.cells[0].data}" onclick="getAgent(${row.cells[0].data})" value="${row.cells[0].data}" class="btn btn-primary d-inline-flex align-items-center">Edit<svg class="icon icon-xs ms-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path></svg></button>`)
+                            }
+                        },
+                    ],
+                    server: {
+                    url: '{{ url_for('agents.search') }}',
+                    then: results => results.data,
+                    total: results => results.total,
+                    },
+                    search: {
+                        enabled: true,
+                        debounceTimeout: 1000,
+                        server: {
+                            url: (prev, search) => {
+                                return updateUrl(prev, {search});
+                            },
+                        },
+                    },
+                    pagination: {
+                        enabled: true,
+                        resetPageOnUpdate: true,
+                        server: {
+                            url: (prev, page, limit) => {
+                                return updateUrl(prev, {start: page * limit, length: limit});
+                            },
+                        },
+                    },
+                }).render(document.getElementById('Agents'));
+            </script>
+            <!-- settings/agents.html -->
+{% endblock javascripts %}

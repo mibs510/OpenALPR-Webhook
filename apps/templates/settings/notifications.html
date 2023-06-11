@@ -1,0 +1,382 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Profile {% endblock title %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+            <!-- settings/notifications.html -->
+            <link rel="stylesheet" href="/static/assets/css/custom.css">
+            <!-- settings/notifications.html -->
+{% endblock stylesheets %}
+
+{% block body_class %} g-sidenav-show bg-gray-100 {% endblock %}
+
+{% block content %}
+                <!-- settings/notifications.html -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+                    <div class="d-block mb-4 mb-md-0">
+                        <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
+                            <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+                                <li class="breadcrumb-item">
+                                    <a href="#">
+                                        <svg class="icon icon-xxs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                                    </a>
+                                </li>
+                                <li class="breadcrumb-item"><a href="#">Settings</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Notifications</li>
+                            </ol>
+                        </nav>
+                        <h2 class="h4">Notifications</h2>
+                    </div>
+                </div>
+                <div class="row mb-5">
+                    <div class="col-12 col-xl-6">
+                        <!-- SMTP settings -->
+                        <div class="card">
+                            <div class="card-header text-left">
+                                <div class="d-flex">
+                                    <h5 class="mx-auto w-100">Email - SMTP Server</h5>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input smtpDisable" type="checkbox" id="flexSwitchCheckDefault" {% if smtp.enabled %}checked{% else %}{% endif %}>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <form method="put" id="smtpEditForm" enctype=multipart/form-data>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <label class="form-label">Hostname</label>
+                                            <input type="text" id="smtp_hostname" name="smtp_hostname" class="form-control" placeholder="smtp.domain.com" value="{% if smtp.hostname %}{{ smtp.hostname }}{% endif %}" {% if smtp.enabled %}{% else %}disabled{% endif %}>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="form-label">Port</label>
+                                            <span class="sidebar-icon">
+                                                <a href="#" data-toggle="tooltip" title="OpenALPR-Webhook uses SSL to send emails. Email servers use port 465 to listen for incoming SSL requests.">
+                                                    <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                        <path clip-rule="evenodd" fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path>
+                                                    </svg>
+                                                </a>
+                                            </span>
+                                            <input type="number" id="smtp_port" name="smtp_port" class="form-control" placeholder="465" value="{% if smtp.port %}{{ smtp.port }}{% endif %}" {% if smtp.enabled %}{% else %}disabled{% endif %}>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-3">
+                                        <div class="col-sm-6">
+                                            <label class="form-label">Username/Email</label>
+                                            <input type="email" id="smtp_username_email" name="smtp_username_email" value="{% if smtp.username_email %}{{ smtp.username_email }}{% endif %}" placeholder="noreply@domain.com" class="form-control" {% if smtp.enabled %}{% else %}disabled{% endif %}>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="form-label">Password</label>
+                                            <input type="password" id="smtp_password" name="smtp_password" value="{% if smtp.password %}{{ smtp.password }}{% endif %}" class="form-control" {% if smtp.enabled %}{% else %}disabled{% endif %}>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-3">
+                                        <div class="col-sm-12">
+                                            <label class="form-label">Recipient(s)</label>
+                                            <span class="sidebar-icon">
+                                                <a href="#" data-toggle="tooltip" title="Use commas (,) without spaces to add more than one recipient.">
+                                                    <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                        <path clip-rule="evenodd" fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path>
+                                                    </svg>
+                                                </a>
+                                            </span>
+                                            <input type="text" id="smtp_recipients" name="smtp_recipients" class="form-control" placeholder="noreply@domain.com" value="{% if smtp.recipients %}{{ smtp.recipients }}{% endif %}" {% if smtp.enabled %}{% else %}disabled{% endif %}>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-lg-between mt-4">
+                                        <button type="button" class="btn btn-secondary" id="smtpTestBtn" onclick="smtpTest()" {% if smtp.enabled %}{% else %}disabled{% endif %}>Test</button>
+                                        <button type="submit" class="btn btn-primary" id="smtpSaveBtn" {% if smtp.enabled %}{% else %}disabled{% endif %}>Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- SMTP settings -->
+                    </div>
+                    <div class="col-12 col-xl-6">
+                        <!-- Twilio settings -->
+                        <div class="card">
+                            <div class="card-header text-left">
+                                <div class="d-flex">
+                                    <h5 class="mx-auto w-100">SMS - Twilio</h5>
+                                    <div class="form-check form-switch mb-0">
+                                        <input class="form-check-input smsDisable" type="checkbox" id="flexSwitchCheckDefault" {% if sms.enabled %}checked{% else %}{% endif %}>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <form method="put" id="smsEditForm" enctype=multipart/form-data>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <label class="form-label">Account SID</label>
+                                            <input type="text" id="sms_account_sid" name="sms_account_sid" class="form-control" placeholder="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" value="{% if sms.account_sid %}{{ sms.account_sid }}{% endif %}" {% if sms.enabled %}{% else %}disabled{% endif %}>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="form-label">Auth Token</label>
+                                            <input type="password" id="sms_auth_token" name="sms_auth_token" class="form-control" placeholder="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" value="{% if sms.auth_token %}{{ sms.auth_token }}{% endif %}" {% if sms.enabled %}{% else %}disabled{% endif %}>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-3">
+                                        <div class="col-sm-12">
+                                            <label class="form-label">My Twilio phone number</label>
+                                            <input type="text" id="sms_phone_number" name="sms_phone_number" class="form-control" placeholder="+12345678901" value="{% if sms.phone_number %}{{ sms.phone_number }}{% endif %}" {% if sms.enabled %}{% else %}disabled{% endif %}>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-3">
+                                        <div class="col-sm-12">
+                                            <label class="form-label">Recipient(s)</label>
+                                            <span class="sidebar-icon">
+                                                <a href="#" data-toggle="tooltip" title="Use commas (,) without spaces to add more than one recipient.">
+                                                    <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                        <path clip-rule="evenodd" fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path>
+                                                    </svg>
+                                                </a>
+                                            </span>
+                                            <input type="text" id="sms_recipients" name="sms_recipients" class="form-control" placeholder="+12345678901" value="{% if sms.recipients %}{{ sms.recipients }}{% endif %}" {% if sms.enabled %}{% else %}disabled{% endif %}>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-lg-between mt-4">
+                                        <button type="button" class="btn btn-secondary" id ="smsTestBtn" onclick="smsTest()" {% if sms.enabled %}{% else %}disabled{% endif %}>Test</button>
+                                        <button type="submit" class="btn btn-primary" id="smsSaveBtn" {% if sms.enabled %}{% else %}disabled{% endif %}>Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- Twilio settings -->
+                    </div>
+                </div>
+                <!-- settings/notifications.html -->
+{% endblock content %}
+
+<!-- Specific JS goes HERE -->
+{% block javascripts %}
+            <!-- settings/notifications.html -->
+            <!-- Tooltips -->
+            <script>
+                $(document).ready(function(){
+                    $('[data-toggle="tooltip"]').tooltip();
+                });
+            </script>
+            <script>
+                // Edit SMTP
+                $('#smtpEditForm').on('submit', function (e) {
+                    var formData = new FormData($("#smtpEditForm")[0]);
+
+                    e.preventDefault();
+                    $.ajax({
+                        type: 'PUT',
+                        url: "{{ url_for('notifications.edit_smtp') }}",
+                        data: formData,
+                        async: true,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success: function(res) {
+                            Swal.fire( {icon: 'success', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: res['message']}).then(() => {
+                                location.reload();
+                            });
+                        },
+                        error: function(request,error) {
+                            Swal.fire( {icon: 'error', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: JSON.parse(request.responseText)['error']})
+                        },
+                    })
+                });
+                // Edit SMTP
+                // Enable/Disable SMTP
+                $(".smtpDisable").on('click', function () {
+                    if (this.checked) {
+                        $("#smtpSaveBtn").removeAttr('disabled');
+                        $("#smtpTestBtn").removeAttr('disabled');
+                        $("#smtp_hostname").removeAttr('disabled');
+                        $("#smtp_port").removeAttr('disabled');
+                        $("#smtp_username_email").removeAttr('disabled');
+                        $("#smtp_password").removeAttr('disabled');
+                        $("#smtp_recipients").removeAttr('disabled');
+                        $.ajax({
+                            type: "PUT",
+                            url: "{{ url_for('notifications.enable_smtp') }}",
+                            data: '',
+                            dataType: '',
+                            error: function(request,error) {
+                                Swal.fire( {icon: 'error', buttonsStyling: false,
+                                    customClass: {confirmButton: 'btn btn-primary'},
+                                    text: JSON.parse(request.responseText)['error']})
+                            },
+                        });
+                    } else {
+                        $("#smtpSaveBtn").attr('disabled', 'disabled');
+                        $("#smtpTestBtn").attr('disabled', 'disabled');
+                        $("#smtp_hostname").attr('disabled', 'disabled');
+                        $("#smtp_port").attr('disabled', 'disabled');
+                        $("#smtp_username_email").attr('disabled', 'disabled');
+                        $("#smtp_password").attr('disabled', 'disabled');
+                        $("#smtp_recipients").attr('disabled', 'disabled');
+                        $.ajax({
+                            type: "PUT",
+                            url: "{{ url_for('notifications.disable_smtp') }}",
+                            data: '',
+                            dataType: '',
+                            error: function(request,error) {
+                                Swal.fire( {icon: 'error', buttonsStyling: false,
+                                    customClass: {confirmButton: 'btn btn-primary'},
+                                    text: JSON.parse(request.responseText)['error']})
+                            },
+                        });
+                    }
+                });
+                // Enable/Disable SMTP
+                // Test SMTP
+                function smtpTest() {
+                    document.getElementById("smtpSaveBtn").setAttribute('disabled','');
+                    document.getElementById("smtpTestBtn").setAttribute('disabled', 'disabled');
+                    document.getElementById("smtp_hostname").setAttribute('disabled', 'disabled');
+                    document.getElementById("smtp_port").setAttribute('disabled', 'disabled');
+                    document.getElementById("smtp_username_email").setAttribute('disabled', 'disabled');
+                    document.getElementById("smtp_password").setAttribute('disabled', 'disabled');
+                    document.getElementById("smtp_recipients").setAttribute('disabled', 'disabled');
+
+                    $.ajax({
+                        type: "PUT",
+                        url: "{{ url_for('notifications.test_smtp') }}",
+                        data: '',
+                        dataType: '',
+                        beforeSend: function (){
+                            Swal.fire({
+                                text: 'Sending test message...',
+                                didOpen: () => {
+                                    Swal.showLoading()
+                                },
+                            })
+                        },
+                        error: function(request,error) {
+                            Swal.fire( {icon: 'error', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: JSON.parse(request.responseText)['error']})
+                        },
+                        success: function(res) {
+                            Swal.fire( {icon: 'success', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: res['message']})
+                        },
+                        complete: function(){
+                            Swal.hideLoading()
+                        }
+                    })
+                    Swal.hide
+                    document.getElementById("smtpSaveBtn").removeAttribute('disabled');
+                    document.getElementById("smtpTestBtn").removeAttribute('disabled');
+                    document.getElementById("smtp_hostname").removeAttribute('disabled');
+                    document.getElementById("smtp_port").removeAttribute('disabled');
+                    document.getElementById("smtp_username_email").removeAttribute('disabled');
+                    document.getElementById("smtp_password").removeAttribute('disabled');
+                    document.getElementById("smtp_recipients").removeAttribute('disabled');
+                }
+                // Test SMTP
+                // Enable/Disable SMS
+                $(".smsDisable").on('click', function () {
+                    if (this.checked) {
+                        $("#smsSaveBtn").removeAttr('disabled');
+                        $("#smsTestBtn").removeAttr('disabled');
+                        $("#sms_account_sid").removeAttr('disabled');
+                        $("#sms_auth_token").removeAttr('disabled');
+                        $("#sms_phone_number").removeAttr('disabled');
+                        $("#sms_recipients").removeAttr('disabled');
+                        $.ajax({
+                            type: "PUT",
+                            url: "{{ url_for('notifications.enable_sms') }}",
+                            data: '',
+                            dataType: '',
+                            error: function(request,error) {
+                                Swal.fire( {icon: 'error', buttonsStyling: false,
+                                    customClass: {confirmButton: 'btn btn-primary'},
+                                    text: JSON.parse(request.responseText)['error']})
+                            },
+                        });
+                    } else {
+                        $("#smsSaveBtn").attr('disabled', 'disabled');
+                        $("#smsTestBtn").attr('disabled', 'disabled');
+                        $("#sms_account_sid").attr('disabled', 'disabled');
+                        $("#sms_auth_token").attr('disabled', 'disabled');
+                        $("#sms_phone_number").attr('disabled', 'disabled');
+                        $("#sms_recipients").attr('disabled', 'disabled');
+                        $.ajax({
+                            type: "PUT",
+                            url: "{{ url_for('notifications.disable_sms') }}",
+                            data: '',
+                            dataType: '',
+                            error: function(request,error) {
+                                Swal.fire( {icon: 'error', buttonsStyling: false,
+                                    customClass: {confirmButton: 'btn btn-primary'},
+                                    text: JSON.parse(request.responseText)['error']})
+                            },
+                        });
+                    }
+                });
+                // Enable/Disable SMS
+                // Edit SMS
+                $('#smsEditForm').on('submit', function (e) {
+                    var formData = new FormData($("#smsEditForm")[0]);
+
+                    e.preventDefault();
+                    $.ajax({
+                        type: 'PUT',
+                        url: "{{ url_for('notifications.edit_sms') }}",
+                        data: formData,
+                        async: true,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success: function(res) {
+                            Swal.fire( {icon: 'success', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: res['message']})
+                        },
+                        error: function(request,error) {
+                            Swal.fire( {icon: 'error', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: JSON.parse(request.responseText)['error']})
+                        },
+                    })
+                });
+                // Edit SMS
+                // Test SMS
+                function smsTest() {
+                    document.getElementById("smsSaveBtn").setAttribute('disabled','disabled');
+                    document.getElementById("smsTestBtn").setAttribute('disabled', 'disabled');
+                    document.getElementById("sms_account_sid").setAttribute('disabled', 'disabled');
+                    document.getElementById("sms_auth_token").setAttribute('disabled', 'disabled');
+                    document.getElementById("sms_phone_number").setAttribute('disabled', 'disabled');
+                    document.getElementById("sms_recipients").setAttribute('disabled', 'disabled');
+                    $.ajax({
+                        type: "PUT",
+                        url: "{{ url_for('notifications.test_sms') }}",
+                        data: '',
+                        dataType: '',
+                        beforeSend: function (){
+                            Swal.fire({
+                                text: 'Sending test message...',
+                                didOpen: () => {
+                                    Swal.showLoading()
+                                },
+                            })
+                        },
+                        error: function(request,error) {
+                            Swal.fire( {icon: 'error', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: JSON.parse(request.responseText)['error']})
+                        },
+                        success: function(res) {
+                            Swal.fire( {icon: 'success', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: res['message']})
+                        },
+                        complete: function(){
+                            Swal.hideLoading()
+                        }
+                    })
+                    document.getElementById("smsSaveBtn").removeAttribute('disabled');
+                    document.getElementById("smsTestBtn").removeAttribute('disabled');
+                    document.getElementById("sms_account_sid").removeAttribute('disabled');
+                    document.getElementById("sms_auth_token").removeAttribute('disabled');
+                    document.getElementById("sms_phone_number").removeAttribute('disabled');
+                    document.getElementById("sms_recipients").removeAttribute('disabled');
+                }
+                // Test SMS
+            </script>
+            <!-- settings/notifications.html -->
+{% endblock javascripts %}

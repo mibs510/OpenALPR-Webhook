@@ -1,0 +1,67 @@
+            <!-- scripts.html -->
+            <!-- Core Libs -->
+            <script src="/static/assets/vendor/@popperjs/core/dist/umd/popper.min.js"></script>
+            <script src="/static/assets/vendor/bootstrap/dist/js/bootstrap.min.js"></script>
+
+            <!-- Plugins -->
+            <script src="/static/assets/vendor/onscreen/dist/on-screen.umd.min.js"></script>
+            <script src="/static/assets/vendor/nouislider/distribute/nouislider.min.js"></script>
+            <script src="/static/assets/vendor/smooth-scroll/dist/smooth-scroll.polyfills.min.js"></script>
+            <script src="/static/assets/vendor/countup.js/dist/countUp.umd.js"></script>
+            <script src="/static/assets/vendor/apexcharts/dist/apexcharts.min.js"></script>
+            <script src="/static/assets/vendor/vanillajs-datepicker/dist/js/datepicker.min.js"></script>
+            <script src="/static/assets/vendor/simple-datatables/dist/umd/simple-datatables.js"></script>
+            <script src="/static/assets/vendor/sweetalert2/dist/sweetalert2.min.js"></script>
+            <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+            <script src="/static/assets/vendor/vanillajs-datepicker/dist/js/datepicker.min.js"></script>
+            <script src="/static/assets/vendor/fullcalendar/main.min.js"></script>
+            <script src="/static/assets/vendor/dropzone/dist/min/dropzone.min.js"></script>
+            <script src="/static/assets/vendor/choices.js/public/assets/scripts/choices.js"></script>
+            <script src="/static/assets/vendor/notyf/notyf.min.js"></script>
+            <script src="/static/assets/vendor/leaflet/dist/leaflet.js"></script>
+            <script src="/static/assets/vendor/svg-pan-zoom/dist/svg-pan-zoom.min.js"></script>
+            <script src="/static/assets/vendor/svgmap/dist/svgMap.min.js"></script>
+            <script src="/static/assets/vendor/simplebar/dist/simplebar.min.js"></script>
+            <script src="/static/assets/vendor/sortablejs/Sortable.min.js"></script>
+
+            <script async defer src="//buttons.github.io/buttons.js"></script>
+
+            <!-- for ajax -->
+            <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+            <!-- Volt JS -->
+            <script src="/static/assets/js/volt.js"></script>
+            <!-- js for image display -->
+            <script>
+                // get image
+                function readURL(input) {
+                    console.log(true)
+                    if (input.files && input.files[0]) {
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            $('.imageshow').attr('src', e.target.result);
+                        }
+                        reader.readAsDataURL(input.files[0]);
+                    }
+                }
+                // end
+
+                // display image
+                var loadFile = function(event) {
+                    var output = document.getElementById('image-display');
+                    if (event.target.files[0]) {
+                        var size = event.target.files[0].size;
+                        if (size > 1024000) {
+                            alert("Maximum file size exceeds");
+
+                        }else {
+                            output.src = URL.createObjectURL(event.target.files[0]);
+                            output.onload = function () {
+
+                                URL.revokeObjectURL(output.src) // free memory
+                            }
+                        }
+                    }
+                };
+            </script>
+            <!-- scripts.html -->

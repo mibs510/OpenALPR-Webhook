@@ -1,0 +1,280 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Profile {% endblock title %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+            <!-- settings/profile.html -->
+            <link rel="stylesheet" href="/static/assets/css/custom.css">
+            <!-- settings/profile.html -->
+{% endblock stylesheets %}
+
+{% block body_class %} g-sidenav-show bg-gray-100 {% endblock %}
+
+{% block content %}
+                <!-- settings/profile.html -->
+                <!-- loader -->
+                <div id="overlay">
+                    <div class="cv-spinner">
+                        <span class="spinner"></span>
+                    </div>
+                </div>
+                <!-- end loader -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+                    <div class="d-block mb-4 mb-md-0">
+                        <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
+                            <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+                                <li class="breadcrumb-item">
+                                    <a href="#">
+                                        <svg class="icon icon-xxs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                                    </a>
+                                </li>
+                                <li class="breadcrumb-item"><a href="#">Settings</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Profile</li>
+                            </ol>
+                        </nav>
+                        <h2 class="h4">My Profile</h2>
+                    </div>
+                </div>
+                <div class="my-3 py-3">
+                    <div class="row mb-5">
+                        <div class="col-12 col-xl-8">
+                            <!-- Card Basic Info -->
+                            <div class="card" id="basic-info">
+                                <div class="card-header">
+                                    <h5>Basic Info</h5>
+                                </div>
+                                {% if not current_user.email %}
+                                    <div class="alert alert-danger alert-dismissible" role="alert">
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                        <h5 class="alert-heading"><i class="feather icon-alert-circle me-2"></i>Email Verification</h5>
+                                        <p class="mb-0">Please add an email address.</p>
+                                    </div>
+                                {% endif %}
+
+                                <div class="card-body pt-0">
+                                    <form method="put" id="userEditForm" enctype=multipart/form-data>
+                                        <input type="hidden" id="user_id" value="{{current_user.id}}" name="user_id">
+                                        <input id="imageid-btn" type='file' name="image" accept="image/png, image/jpeg" onchange="loadFile(event)" />
+                                        <div class="">
+                                            <div class="card-body">
+                                                <div class="row mt-3">
+                                                    <div class="col-sm-6">
+                                                        <label class="form-label">Full Name</label>
+                                                        <input type="text" id="full_name" name="full_name" class="form-control" placeholder="Full Name" value="{{context['profile_name']}}">
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <label class="form-label">Organization</label>
+                                                        <input type="text" id="bio" name="bio" class="form-control" placeholder="Bio" value="{{ context['profile_bio']}}">
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-3">
+                                                    <div class="col-sm-6">
+                                                        <label class="form-label {% if not current_user.email %} text-danger {% endif %}">Email</label>
+                                                        <input type="email" id="email" name="email"
+                                                            {% if current_user.email %}
+                                                               readonly value="{{ current_user.email }}"
+                                                            {% else %}
+                                                                placeholder="Email"
+                                                            {% endif %}
+                                                            class="form-control">
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <label class="form-label">Phone</label>
+                                                        <input type="text" id="phone" name="phone" class="form-control" placeholder="Phone" value="{{ context['profile_phone']}}">
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-3">
+                                                    <div class="col-sm-6">
+                                                        <label class="form-label">Website</label>
+                                                        <input type="text" id="website" name="website" class="form-control" placeholder="Website" value="{{ context['profile_website'] }}">
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <label class="form-label">Zip Code</label>
+                                                        <input type="text" id="zipcode" name="zipcode" class="form-control" placeholder="Zip Code" value="{{ context['profile_zipcode']}}">
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-3">
+                                                    <div class="col-sm-12">
+                                                        <label class="form-label">Address</label>
+                                                        <input type="text" id="address" name="address" class="form-control" placeholder="Address" value="{{ context['profile_address']}}">
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-3">
+                                                    <div class="col-sm-12">
+                                                        <label class="form-label">Time Zone</label>
+                                                        <select class="form-select" id="timezone" name="timezone" aria-label="Timezone selection">
+                                                            {% for timezone in timezones %}
+                                                                <option value="{{ timezone }}" {% if timezone == context['profile_timezone'] %}selected{% endif %}>{{ timezone }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <button type="submit" class="btn btn-primary">Save changes</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <!-- API Explorer-->
+                            <div class="card mt-4" id="password">
+                                <div class="card-header">
+                                    <h5>API_KEY: <span class="text-info">{{ current_user.api_token }}</span></h5>
+                                </div>
+                                <div class="card-body  pt-0">
+                                    <!-- Change password -->
+                                    <div class="row mt-3">
+                                        <div class="col-lg-12">
+                                            <form id="apiExplorerForm" method="post">
+                                                <div class="card-body pt-0">
+                                                    <h6 class="mt-2">Provide Rekor Scout access to POST on the <a class="text-success" target="_blank" href="/api/">API interface</a>.</h6>
+                                                    <p>Note: Insert <code>{"API_KEY": "{{ current_user.api_token }}"}</code> into <strong>Custom Data</strong> under <strong>Configuration > WebHooks</strong></p>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Card Change Password -->
+                            {% if current_user.email %}
+                                <div class="card mt-4" id="password">
+                                    <div class="card-header">
+                                        <h5>Change Password</h5>
+                                    </div>
+                                    <div class="card-body  pt-0">
+                                        <!-- Change password -->
+                                        <div class="row mt-3">
+                                            <div class="col-lg-12">
+                                                <!-- Change Password -->
+                                                <form id="changePassForm" method="post">
+                                                    <div class="card-body pt-0">
+                                                        <div class="row mt-2">
+                                                            <label class="form-label">New password</label>
+                                                            <div class="form-group">
+                                                                <input class="form-control" id="id_password1" name="new_password" type="password" placeholder="New password" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mt-2">
+                                                            <label class="form-label">Confirm new password</label>
+                                                            <div class="form-group">
+                                                                <input class="form-control" id="id_password2" name="new_password2" type="password" placeholder="Confirm password" required>
+                                                            </div>
+                                                        </div>
+                                                        <h6 class="mt-3">Please follow this guide for a strong password:</h6>
+                                                        <ul class="text-muted ps-4 mb-0 float-start">
+                                                            <li>
+                                                                <span class="text-sm">At least one special character</span>
+                                                            </li>
+                                                            <li>
+                                                                <span class="text-sm">A minimum of 6 characters</span>
+                                                            </li>
+                                                            <li>
+                                                                <span class="text-sm">Change password often</span>
+                                                            </li>
+                                                        </ul>
+                                                        <button type="submit" class="btn btn-primary shadow-2 mb-4 bg-gradient-dark btn-sm float-end mt-6 mb-0">Update password</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <!-- End Card Change Password -->
+                        </div>
+                        <div class="col-12 col-xl-4">
+                            <!-- User Avatar -->
+                            <div class="card shadow border-0 text-center p-0">
+                                <div class="profile-cover rounded-top" data-background="/static/assets/img/profile-cover.jpg" style="background: url(/static/assets/img/profile-cover.jpg);"></div>
+                                <div class="card-body pb-5">
+                                    <img class="avatar-xl rounded-circle mx-auto mt-n7 mb-4 imageshow profile_image" id="image-display" src="data:image/png;base64, {{ current_user.avatar }}" alt="User image">
+                                    <div class="certificated-badge">
+                                        <div class="new_Btn img-choose-icon">
+                                            <span class="sidebar-icon">
+                                                <svg class="icon icon-xs me-2 setting-icon-h-wd" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                    <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
+                                                </svg>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <h4 class="h3">{{current_user.username }}</h4>
+                                    <h5 class="fw-normal">{{ current_user.email }}</h5>
+                                    <h6 class="fw-normal"><a target="_blank" href="{{ context['profile_website'] }}">{{ context['profile_website'] }}</a></h6>
+                                    <p class="text-gray mb-4">{{ context['profile_bio']}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- settings/profile.html -->
+{% endblock content %}
+
+<!-- Specific JS goes HERE -->
+{% block javascripts %}
+            <!-- settings/profile.html -->
+            <script>
+                // edit user
+                $('#userEditForm').on('submit', function (e) {
+                    {#debugger#}
+                    var formData = new FormData($("#userEditForm")[0]);
+                    var files = $('#imageid-btn')[0].files;
+                    // Check file selected or not
+                    if (files.length > 0) {
+                        formData.append('imageid-btn', files[0]);
+                    }
+
+                    e.preventDefault();
+                    $.ajax({
+                        type: 'PUT',
+                        url: "{{ url_for('profile.edit') }}",
+                        data: formData,
+                        async: true,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success: function (res) {
+                            Swal.fire({ icon: 'success', text: res['message'] }).then(() => {
+                                location.reload();
+                            });
+                        },
+                        error: function (request, error) {
+
+                            Swal.fire({ icon: 'error', text: JSON.parse(request.responseText)['error'] }).then(() => {
+                                location.reload();
+                            });
+                        }
+                    })
+                });
+
+                // change password
+                $('#changePassForm').on('submit', function (e) {
+                    var formData = new FormData($("#changePassForm")[0]);
+                    e.preventDefault();
+                    $.ajax({
+                        type: 'POST',
+                        url: "{{ url_for('profile.update_password') }}",
+                        data: formData,
+                        async: false,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success: function (res) {
+                            Swal.fire({ icon: 'success', text: res['message'] }).then(() => {
+                                location.reload();
+                            });
+                        },
+                        error: function (request, error) {
+                            Swal.fire({ icon: 'error', text: JSON.parse(request.responseText)['error'] }).then(() => {
+                                    location.reload();
+                                });
+                        }
+                    });
+
+                });
+                $('.new_Btn').click(function () {
+                    $('#imageid-btn').click();
+                })
+            </script>
+            <!-- settings/profile.html -->
+{% endblock javascripts %}

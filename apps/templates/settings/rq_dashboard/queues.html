@@ -1,0 +1,123 @@
+{% extends "settings/rq_dashboard/base.html" %}
+
+{% block content %}
+                <!-- settings/rq_dashboard/queues.html -->
+                <div class="py-4">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+                            <li class="breadcrumb-item">
+                                <a href="#">
+                                    <svg class="icon icon-xxs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                                    </svg>
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item"><a href="#">Settings</a></li>
+                            <li class="breadcrumb-item"><a href="#">Maintenance</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Redis Queue</li>
+                        </ol>
+                    </nav>
+                    <div class="d-flex justify-content-between w-100 flex-wrap">
+                        <div class="mb-3 mb-lg-0">
+                            <h1 class="h4">Queues</h1>
+                            <p class="mb-0">The list below contains all the registered queues with the number of jobs currently in the queue.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secondary Navbar -->
+                <div class="col-12 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-sm-1">
+                                        <label class="my-2 me-2" for="rq-instances">Instance:</label>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div id="rq-instances-row">
+                                            <select class="form-select" id="rq-instances" {% if instance_list|length == 1 %} disabled {% endif %}>
+                                                {% for instance in instance_list %}
+                                                    <option data-instance-number="{{ instance_list.index(instance) }}" {% if instance_list[current_instance] == instance %} selected {% endif %}>{{ instance }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <div class="d-block flex-nowrap justify-content-end d-sm-flex">
+                                            <div class="order-1 p-2">
+                                                <label class="form-check-label" for="flexSwitchCheckChecked">Auto Refresh</label>
+                                            </div>
+                                            <div class="order-2 p-2">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="autorefresh-switch" checked>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Queues -->
+                <div class="col-12">
+                    <div class="card border-0 shadow">
+
+                        <div class="card-header border-bottom">
+                            <div class="row align-items-center">
+                                <div class="col-6">
+                                    <h2 class="fs-5 fw-bold mb-0">Queues</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-centered table-nowrap mb-0 rounded" id="queues">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th class="border-0 rounded-start">Queue</th>
+                                            <th class="border-0">Queued jobs</th>
+                                            <th class="border-0">Deferred jobs</th>
+                                            <th class="border-0">Started jobs</th>
+                                            <th class="border-0">Finished jobs</th>
+                                            <th class="border-0 rounded-end">Failed jobs</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr data-role="loading-placeholder">
+                                            <td class="border-0 text-center" colspan="7">Loading...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <script name="queue-row" type="text/template">
+                                <tr data-role="queue">
+                                    <td class="border-0 font-weight-bold"><b><%= d.name %></b></td>
+                                    <td class="border-0"><a href="<%= d.queued_url %>"><%= d.count %></a></td>
+                                    <td class="border-0"><a href="<%= d.deferred_url %>"><%= d.deferred_job_registry_count %></a></td>
+                                    <td class="border-0"><a href="<%= d.started_url %>"><%= d.started_job_registry_count %></a></td>
+                                    <td class="border-0"><a href="<%= d.finished_url %>"><%= d.finished_job_registry_count %></a></td>
+                                    <td class="border-0 text-danger"><a href="<%= d.failed_url %>"><%= d.failed_job_registry_count %></a></td>
+                                </tr>
+                            </script>
+                            <script name="no-queues-row" type="text/template">
+                                <tr>
+                                    <td class="border-0 text-center" colspan="7">No queues.</td>
+                                </tr>
+                            </script>
+                        </div>
+                        <div class="card-footer border-top bg-gray-50">
+                            <p class="mb-0 text-center text-lg-start">Frontend interface for Redis Queue is made possible with <a href="https://github.com/Parallels/rq-dashboard">Parallels/rq-dashboard</a></p>
+                        </div>
+                    </div>
+                </div>
+                <!-- settings/rq_dashboard/queues.html -->
+{% endblock %}
+
+{% block rq_dashboard_javascript %}
+            <!-- settings/rq_dashboard/queues.html -->
+            <script src="/static/assets/scripts/queues.js"></script>
+            <!-- settings/rq_dashboard/queues.html -->
+{% endblock rq_dashboard_javascript %}

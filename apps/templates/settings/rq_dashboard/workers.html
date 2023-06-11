@@ -1,0 +1,196 @@
+{% extends "settings/rq_dashboard/base.html" %}
+
+{% block content %}
+                <!-- settings/rq_dashboard/queues.html -->
+                <div class="py-4">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+                            <li class="breadcrumb-item">
+                                <a href="#">
+                                    <svg class="icon icon-xxs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                                    </svg>
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item"><a href="#">Settings</a></li>
+                            <li class="breadcrumb-item"><a href="#">Maintenance</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Redis Queue</li>
+                        </ol>
+                    </nav>
+                    <div class="d-flex justify-content-between w-100 flex-wrap">
+                        <div class="mb-3 mb-lg-0">
+                            <h1 class="h4">Workers</h1>
+                            <p class="mb-0"> This list below contains all the registered workers with their state and work queues.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secondary Navbar -->
+                <div class="col-12 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-sm-1">
+                                        <label class="my-2 me-2" for="rq-instances">Instance:</label>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div id="rq-instances-row">
+                                            <select class="form-select" id="rq-instances" {% if instance_list|length == 1 %} disabled {% endif %}>
+                                                {% for instance in instance_list %}
+                                                    <option data-instance-number="{{ instance_list.index(instance) }}" {% if instance_list[current_instance] == instance %} selected {% endif %}>{{ instance }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <div class="d-block flex-nowrap justify-content-end d-sm-flex">
+                                            <div class="order-1 p-2">
+                                                <label class="form-check-label" for="flexSwitchCheckChecked">Auto Refresh</label>
+                                            </div>
+                                            <div class="order-2 p-2">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="autorefresh-switch" checked>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Workers -->
+                <div class="col-12 mb-4">
+                    <div class="card border-0 shadow">
+                        <div class="card-header border-bottom">
+                            <div class="row align-items-center">
+                                <div class="col-6">
+                                    <h2 class="fs-5 fw-bold mb-0">Workers</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-centered table-nowrap mb-0 rounded" id="workers">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th class="border-0 rounded-start">Workers</th>
+                                            <th class="border-0">Current Job</th>
+                                            <th class="border-0 rounded-end">Queues</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr data-role="loading-placeholder">
+                                            <td class="border-0 text-center" colspan="3">Loading...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <script name="worker-row" type="text/template">
+                                <tr data-role="worker">
+                                    <td class="border-0" <% if (d.version && d.python_version) { %>title ="RQ <%= d.version %> / Python <%= d.python_version %>" <% } %>>
+                                        <%= d.name %>
+                                    </td>
+                                    <% if (d.current_job !== 'idle') { %>
+                                    <td class="border-0" title="Job ID: <%= d.current_job.job_id %>&#013;&#010;Description: <% if (d.current_job.description){ %> <%- d.current_job.description %> <% } %>&#013;&#010;Created at: <%= toRelative(d.current_job.created_at) %>&#013;&#010;">
+                                        <a href="<%= url_for_single_job_view(d.current_job.job_id) %>">
+                                            <%= d.current_job.call_string %>
+                                        </a>
+                                    </td>
+                                    <% } else { %>
+                                        <td class="border-0"><%= d.current_job %></td>
+                                    <% } %>
+                                        <td class="border-0"><%= d.queues.join(', ') %></td>
+                                </tr>
+                            </script>
+                            <script name="no-workers-row" type="text/template">
+                                <tr>
+                                    <td class="border-0 text-center" colspan="3">No workers.</td>
+                                </tr>
+                            </script>
+                        </div>
+                        <div class="card-footer border-top bg-gray-50">
+                            <p class="mb-0 text-center text-lg-start">Frontend interface for Redis Queue is made possible with <a href="https://github.com/Parallels/rq-dashboard">Parallels/rq-dashboard</a></p>
+                        </div>
+                    </div>
+                </div>
+                <!-- settings/rq_dashboard/queues.html -->
+{% endblock %}
+
+{% block rq_dashboard_javascript %}
+            <!-- settings/rq_dashboard/queues.html -->
+            <script>
+                $(document).ready(function(){
+                    $('[data-toggle="tooltip"]').tooltip();
+                });
+
+                (function($) {
+                    var $raw_tpl = $('script[name=worker-row]').html();
+                    var noWorkersHtml = $('script[name=no-workers-row]').html();
+                    var template = _.template($raw_tpl);
+                    var $tbody = $('table#workers tbody');
+                    var $placeholderEl = $('tr[data-role=loading-placeholder]', $tbody);
+
+                    var reload_table = function(done) {
+                        $placeholderEl.show();
+
+                        // Fetch the available workers
+                        api.getWorkers(function(workers, err) {
+                            // Return immediately in case of error
+                            if (err) {
+                                if (done !== undefined) {
+                                    done(0);
+                                }
+                                return;
+                            }
+
+                            var html = '';
+
+                            $tbody.empty();
+
+                            if (workers.length > 0) {
+                                $('#workers-count').html(workers.length + ' workers registered')
+
+                                $.each(workers, function(i, worker) {
+                                    if (worker.state === 'busy') {
+                                        worker.state = 'play';
+                                    } else {
+                                        worker.state = 'pause';
+                                    }
+                                    html += template({d: worker}, {variable: 'd'});
+                                });
+                                $tbody.append(html);
+                            } else {
+                                $('#workers-count').html('No workers registered!')
+                                $tbody.append(noWorkersHtml);
+                            }
+
+                            if (done !== undefined) {
+                                done(workers.length);
+                            }
+                        });
+                    };
+
+                    var refresh_table_loop = function() {
+                        $('span.loading').fadeIn('fast');
+                        if (AUTOREFRESH_FLAG){
+                            reload_table(function() {
+                                $('span.loading').fadeOut('fast');
+                                setTimeout(refresh_table_loop, POLL_INTERVAL);
+                            });
+                        } else {
+                            setTimeout(refresh_table_loop, POLL_INTERVAL);
+                        }
+                    };
+
+                    $(document).ready(function() {
+                        reload_table(function(workers_count) {
+                            $('#refresh-button').click(reload_table);
+                            refresh_table_loop();
+                        });
+                    });
+                })($);
+            </script>
+            <!-- settings/rq_dashboard/queues.html -->
+{% endblock rq_dashboard_javascript %}

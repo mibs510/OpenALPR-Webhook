@@ -1,0 +1,413 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Profile {% endblock title %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+            <!-- settings/general.html -->
+            <link rel="stylesheet" href="/static/assets/css/custom.css">
+            <!-- settings/general.html -->
+{% endblock stylesheets %}
+
+{% block body_class %}{% endblock %}
+
+{% block content %}
+                <!-- settings/general.html -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+                    <div class="d-block mb-4 mb-md-0">
+                        <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
+                            <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+                                <li class="breadcrumb-item">
+                                    <a href="#">
+                                        <svg class="icon icon-xxs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                                    </a>
+                                </li>
+                                <li class="breadcrumb-item"><a href="#">Settings</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">General</li>
+                            </ol>
+                        </nav>
+                        <h2 class="h4">General Settings</h2>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <!-- Report settings -->
+                        <div class="card">
+                            <div class="card-header text-left">
+                                <div class="d-flex">
+                                    <h5 class="mx-auto w-100">
+                                        Report Settings
+                                        <span class="sidebar-icon">
+                                            <a data-toggle="tooltip" title="Settings below are used to brand reports for viewing and printing.">
+                                                <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                    <path clip-rule="evenodd" fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path>
+                                                </svg>
+                                            </a>
+                                        </span>
+                                    </h5>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <form method="POST" id="reportSettingsForm" enctype=multipart/form-data>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <label class="form-label">Organization Logo</label>
+                                            <span class="sidebar-icon">
+                                                <a data-toggle="tooltip" title="Only SVG files permitted to preserve quality.">
+                                                    <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                        <path clip-rule="evenodd" fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path>
+                                                    </svg>
+                                                </a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <embed class="image-md mb-4 imageshow org_logo" id="image-display" src="data:image/svg+xml;base64,{{ settings.logo }}" alt="Missing Logo">
+                                            <input class="form-control mb-3" type="file" id="formFile imageid-btn" name="org_logo" accept="image/svg+xml">
+                                        </div>
+                                    </div>
+                                    <div class="row mt-3">
+                                        <div class="col-sm-12">
+                                            <label class="form-label">Organization Name</label>
+                                            <input type="text" id="org_name" name="org_name" value="{{ settings.org_name }}" placeholder="Business Inc." class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-lg-between mt-4">
+                                        <button type="button" class="btn btn-secondary" id="resetReportBtn" onclick="resetReportSettings()">Reset</button>
+                                        <button type="submit" class="btn btn-primary">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- Report settings -->
+                    </div>
+
+                    <div class="col-6">
+                        <!-- IPBan settings -->
+                        <div class="card">
+                            <div class="card-header text-left">
+                                <div class="d-flex">
+                                    <h5 class="mx-auto w-100">
+                                        IPBan Settings
+                                        <span class="sidebar-icon">
+                                            <a data-toggle="tooltip" title="IpBan is a Flask extension that can help protect against ip sources spamming url requests against unknown pages or attempts to exploit URLs. Often this is to search for security issues.">
+                                                <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                    <path clip-rule="evenodd" fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path>
+                                                </svg>
+                                            </a>
+                                        </span>
+                                    </h5>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <form method="POST" id="ipbanSettingsForm" enctype=multipart/form-data>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <label class="form-label">Ban Count</label>
+                                            <span class="sidebar-icon">
+                                                <a data-toggle="tooltip" title="Default is 20. Number of observations before banning.">
+                                                    <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                        <path clip-rule="evenodd" fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path>
+                                                    </svg>
+                                                </a>
+                                            </span>
+                                            <input type="number" id="ipban_ban_count" name="ipban_ban_count" value="{{ ipban.ban_count }}" class="form-control">
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="form-label">Ban Seconds</label>
+                                            <span class="sidebar-icon">
+                                                <a data-toggle="tooltip" title="Default is 86,400 seconds (24 hours). Number of seconds ip address is banned. Use 0 to set a permanent ban.">
+                                                    <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                        <path clip-rule="evenodd" fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path>
+                                                    </svg>
+                                                </a>
+                                            </span>
+                                            <input type="number" id="ipban_ban_seconds" name="ipban_ban_seconds" value="{{ ipban.ban_seconds }}" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="row mt-3">
+                                        <div class="col-sm-6">
+                                            <label class="form-check-label" for="ipban_persist">
+                                                Persist
+                                                <span class="sidebar-icon">
+                                                    <a data-toggle="tooltip" title="Default is unchecked. Persist ban list between restarts, using existing records.">
+                                                        <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                            <path clip-rule="evenodd" fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path>
+                                                        </svg>
+                                                    </a>
+                                                </span>
+                                            </label>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="ipban_persist" name="ipban_persist" {% if ipban.persist %}checked{% else %}{% endif %}>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="form-label">IP Header</label>
+                                            <span class="sidebar-icon">
+                                                <a data-toggle="tooltip" title="Default is blank. Optional name of request header that contains the ip for use behind proxies when in a docker/kube/haproxy/NGINX/reverse proxy hosted env.">
+                                                    <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                        <path clip-rule="evenodd" fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path>
+                                                    </svg>
+                                                </a>
+                                            </span>
+                                            <input type="text" id="ipban_ip_header" name="ipban_ip_header" value="{{ ipban.ip_header }}" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="row mt-3">
+                                        <div class="col-sm-6">
+                                            <label class="form-check-label" for="ipban_abuse_IPDB_config_report">
+                                                Report to AbuseIPDB.com
+                                                <span class="sidebar-icon">
+                                                    <a data-toggle="tooltip" title="Blocked ip addresses via url nuisance matching will be reported.">
+                                                        <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                            <path clip-rule="evenodd" fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path>
+                                                        </svg>
+                                                    </a>
+                                                </span>
+                                            </label>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="ipban_abuse_IPDB_config_report" name="ipban_abuse_IPDB_config_report" {% if ipban.abuse_IPDB_config_report %}checked{% else %}{% endif %}>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                                <label class="form-label" for="ipban_abuse_IPDB_config_load">
+                                                    Load from AbuseIPDB.com
+                                                    <span class="sidebar-icon">
+                                                        <a data-toggle="tooltip" title="Default is blank. Optional name of request header that contains the ip for use behind proxies when in a docker/kube/haproxy/NGINX/reverse proxy hosted env.">
+                                                            <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                                <path clip-rule="evenodd" fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path>
+                                                            </svg>
+                                                        </a>
+                                                    </span>
+                                                </label>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="ipban_abuse_IPDB_config_load" name="ipban_abuse_IPDB_config_load" {% if ipban.abuse_IPDB_config_load %}checked{% else %}{% endif %}>
+                                                </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-3">
+                                        <div class="col-sm-12">
+                                            <label class="form-label">AbuseIPDB.com API Key</label>
+                                            <input type="password" id="ipban_abuse_IPDB_config_key" name="ipban_abuse_IPDB_config_key" value="{{ ipban.abuse_IPDB_config_key }}" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-lg-between mt-4">
+                                        <button type="submit" class="btn btn-primary">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- IPBan settings -->
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <!-- POST Scout Cloud Auth settings -->
+                        <div class="card">
+                            <div class="card-header text-left">
+                                <div class="d-flex">
+                                    <h5 class="mx-auto w-100">
+                                        POST Auth Settings
+                                        <span class="sidebar-icon">
+                                            <a data-toggle="tooltip" title="Settings below are used to set the authorization level required for POSTing data by Rekor Scout Cloud. This prevents unauthorized data from being POSTed.">
+                                                <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                    <path clip-rule="evenodd" fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path>
+                                                </svg>
+                                            </a>
+                                        </span>
+                                    </h5>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <form method="POST" id="postAuthSettingsForm" enctype=multipart/form-data>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <label class="form-label">Authorization Level</label>
+                                            <span class="sidebar-icon">
+                                                <a data-toggle="tooltip" title="Admin API Tokens is the recommended authorization level.">
+                                                    <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                        <path clip-rule="evenodd" fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path>
+                                                    </svg>
+                                                </a>
+                                            </span>
+                                            <select class="form-select" id="post_auth" name="post_auth">
+                                                <option value="{{ post_auth_levels.DISABLE_POSTING.value }}"{% if settings.post_auth == post_auth_levels.DISABLE_POSTING %} selected{% endif %}>Disable POST</option>
+                                                <option value="{{ post_auth_levels.NO_AUTH.value }}"{% if settings.post_auth == post_auth_levels.NO_AUTH %} selected{% endif %}>No Authorization Required</option>
+                                                <option value="{{ post_auth_levels.USERS_ADMINS.value }}"{% if settings.post_auth == post_auth_levels.USERS_ADMINS %} selected{% endif %}>Users & Admin API Tokens</option>
+                                                <option value="{{ post_auth_levels.ADMINS_ONLY.value }}"{% if settings.post_auth == post_auth_levels.ADMINS_ONLY %} selected{% endif %}>Admin API Tokens</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-lg-between mt-4">
+                                        <button type="submit" class="btn btn-primary">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- POST Auth settings -->
+                    </div>
+                    <div class="col-6 mt-4">
+                        <!-- General settings -->
+                        <div class="card">
+                            <div class="card-header text-left">
+                                <div class="d-flex">
+                                    <h5 class="mx-auto w-100">General Settings</h5>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <form method="POST" id="generalSettingsForm" enctype=multipart/form-data>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <label class="form-label">Public URL</label>
+                                            <span class="sidebar-icon">
+                                                <a data-toggle="tooltip" title="Specify the URL used to publicly access this instance of OpenALPR-Webhook. For example: https://oalpr-w.company.com">
+                                                    <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                        <path clip-rule="evenodd" fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path>
+                                                    </svg>
+                                                </a>
+                                            </span>
+                                            <input type="text" id="public_url" name="public_url" value="{{ settings.public_url }}" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-lg-between mt-4">
+                                        <button type="submit" class="btn btn-primary">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- General settings -->
+                    </div>
+                </div>
+                <!-- settings/general.html -->
+{% endblock content %}
+
+<!-- Specific JS goes HERE -->
+{% block javascripts %}
+            <!-- settings/general.html -->
+            <script>
+                // Save report settings
+                $('#reportSettingsForm').on('submit', function (e) {
+                    var formData = new FormData($("#reportSettingsForm")[0]);
+
+                    e.preventDefault();
+                    $.ajax({
+                        type: 'POST',
+                        url: "{{ url_for('general.edit_report_settings') }}",
+                        data: formData,
+                        async: true,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success : function(res) {
+                            Swal.fire( {icon: 'success', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: res['message']}).then(() => {
+                                location.reload();
+                            });
+                        },
+                        error : function(request,error) {
+                            Swal.fire( {icon: 'error', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: JSON.parse(request.responseText)['error']})
+                        },
+                    })
+                });
+                // Reset report settings
+                function resetReportSettings() {
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ url_for('general.reset_report_settings') }}",
+                        data: '',
+                        dataType: '',
+                        error : function(request,error) {
+                            Swal.fire( {icon: 'error', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: JSON.parse(request.responseText)['error']})
+                        },
+                        success : function(res) {
+                            Swal.fire( {icon: 'success', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: res['message']}).then(() => {
+                                location.reload();
+                            });
+                        }
+                    })
+                }
+                // Save IPBan settings
+                $('#ipbanSettingsForm').on('submit', function (e) {
+                    var formData = new FormData($("#ipbanSettingsForm")[0]);
+
+                    e.preventDefault();
+                    $.ajax({
+                        type: 'POST',
+                        url: "{{ url_for('general.edit_ipban_settings') }}",
+                        data: formData,
+                        async: true,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success : function(res) {
+                            Swal.fire( {icon: 'success', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: res['message']}).then(() => {
+                                location.reload();
+                            });
+                        },
+                        error : function(request,error) {
+                            Swal.fire( {icon: 'error', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: JSON.parse(request.responseText)['error']})
+                        },
+                    })
+                });
+                // Save POST Authorization settings
+                $('#postAuthSettingsForm').on('submit', function (e) {
+                    var formData = new FormData($("#postAuthSettingsForm")[0]);
+
+                    e.preventDefault();
+                    $.ajax({
+                        type: 'POST',
+                        url: "{{ url_for('general.edit_post_auth_settings') }}",
+                        data: formData,
+                        async: true,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success : function(res) {
+                            Swal.fire( {icon: 'success', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: res['message']}).then(() => {
+                                location.reload();
+                            });
+                        },
+                        error : function(request,error) {
+                            Swal.fire( {icon: 'error', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: JSON.parse(request.responseText)['error']})
+                        },
+                    })
+                });
+                // Save General settings
+                $('#generalSettingsForm').on('submit', function (e) {
+                    var formData = new FormData($("#generalSettingsForm")[0]);
+                    e.preventDefault();
+                    $.ajax({
+                        type: 'POST',
+                        url: "{{ url_for('general.edit_general_settings') }}",
+                        data: formData,
+                        async: true,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success : function(res) {
+                            Swal.fire( {icon: 'success', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: res['message']}).then(() => {
+                                location.reload();
+                            });
+                        },
+                        error : function(request,error) {
+                            Swal.fire( {icon: 'error', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: JSON.parse(request.responseText)['error']})
+                        },
+                    })
+                });
+                // Tooltips
+                $(document).ready(function(){
+                    $('[data-toggle="tooltip"]').tooltip();
+                });
+            </script>
+            <!-- settings/general.html -->
+{% endblock javascripts %}

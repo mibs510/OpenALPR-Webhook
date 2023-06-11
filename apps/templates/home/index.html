@@ -1,0 +1,529 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Dashboard {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <div class="py-4">
+        <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
+            <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+                <li class="breadcrumb-item">
+                    <a href="">
+                        <svg class="icon icon-xxs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    </a>
+                </li>
+
+                <li class="breadcrumb-item"><a href="#"></a></li>
+                <!--
+                <li class="breadcrumb-item active" aria-current="page">Calendar</li>
+                -->
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Row -->
+    <div class="row">
+        <!-- Plates Captured -->
+        <div class="col-12 col-sm-6 col-xl-4 mb-4">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <div class="row d-block d-xxl-flex align-items-center">
+                        <div class="col-12 col-xxl-6 px-xxl-0 mb-3 mb-xxl-0">
+                            <div id="plates-captured-chart"></div>
+                        </div>
+                        <div class="col-12 col-xxl-6 ps-xxl-4 pe-xxl-0">
+                            <h2 class="fs-6 fw-normal mb-1 text-gray-400">Plates Captured</h2>
+                            <h3 class="fw-extrabold mb-1">{{ quick_stats.this_month_license_plate_count }}</h3>
+                            <small class="d-flex align-items-center">
+                                <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
+                                {{ quick_stats.start_of_month_pretty }} - {{ quick_stats.end_of_month_pretty }}
+                            </small>
+                            <div class="small d-flex mt-1">
+                                <div>{{ quick_stats.this_month_license_plates_mtm_svg_html_arrow }}<span class="{{ quick_stats.this_month_license_plates_mtm_class }} fw-bolder">{{ quick_stats.this_month_license_plates_mtm_percent }}%</span> Since last month</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Alerts -->
+        <div class="col-12 col-sm-6 col-xl-4 mb-4">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <div class="row d-block d-xxl-flex align-items-center">
+                        <div class="col-12 col-xxl-6 px-xxl-0 mb-3 mb-xxl-0">
+                            <div id="alerts-chart"></div>
+                        </div>
+                        <div class="col-12 col-xxl-6 ps-xxl-4 pe-xl-0">
+                            <h2 class="fs-6 fw-normal mb-1 text-gray-400">Alerts</h2>
+                            <h3 class="fw-extrabold mb-1">{{ quick_stats.this_month_alert_count }}</h3>
+                            <small class="d-flex align-items-center">
+                                <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
+                                {{ quick_stats.start_of_month_pretty }} - {{ quick_stats.end_of_month_pretty }}
+                            </small>
+                            <div class="small d-flex mt-1">
+                                <div>{{ quick_stats.this_month_alerts_mtm_svg_html_arrow }}<span class="{{ quick_stats.this_month_alerts_mtm_class }} fw-bolder">{{ quick_stats.this_month_alerts_mtm_percent }}%</span> Since last month</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Traffic -->
+        <div class="col-12 col-sm-12 col-xl-4 mb-4">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <div class="row d-block d-sm-flex d-xl-block d-xxl-flex align-items-center">
+                        <div class="col-12 col-sm-6 col-xl-12 col-xxl-6 px-xxl-0 mb-3 mb-sm-0 mb-xl-3 mb-xxl-0">
+                            <div id="top-region-chart"></div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-xl-12 col-xxl-6 ps-xxl-4 pe-xxl-0">
+                            <h2 class="fs-6 fw-normal mb-1 text-gray-400">Top Second Region</h2>
+                            <h3 class="fw-extrabold mb-1"><div data-bs-toggle="tooltip" data-bs-placement="right" title="Current Count: {{ quick_stats.this_month_top_region_count }}">{{ quick_stats.this_month_top_region }}</div></h3>
+                            <small class="d-flex align-items-center">
+                                <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
+                                {{ quick_stats.start_of_month_pretty }} - {{ quick_stats.end_of_month_pretty }}
+                            </small>
+                            <div class="small d-flex mt-1">
+                                <div>{{ quick_stats.this_month_top_region_mtm_svg_html_arrow }}<span class="{{ quick_stats.this_month_top_region_mtm_class }} fw-bolder">{{ quick_stats.this_month_top_region_mtm_percent }}%</span> Since last month</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <!-- End row -->
+    </div>
+    <div class="row">
+        <div class="col-12 col-xl-7 col-xxl-8 mb-4">
+            <div class="row">
+                <!-- Recent Captures -->
+                <div class="col-12 mb-4">
+                    <div class="card border-0 shadow">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-6">
+                                    <h2 class="fs-5 fw-bold mb-0">Recent Captures</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table align-items-center table-flush">
+                                <thead class="thead-light">
+                                <tr>
+                                    <th class="border-bottom" scope="col">Site</th>
+                                    <th class="border-bottom" scope="col">Camera</th>
+                                    <th class="border-bottom" scope="col">Plate Number</th>
+                                    <th class="border-bottom" scope="col">Direction</th>
+                                    <th class="border-bottom" scope="col">Confidence</th>
+                                    <th class="border-bottom" scope="col">Time</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for record in alpr_group_records %}
+                                    <tr>
+                                        <th class="text-gray-500" scope="row">
+                                            {{ record.agent_label }}
+                                        </th>
+                                    <td class="text-gray-500">
+                                        {{ record.camera_label }}
+                                    </td>
+                                    <td class="text-gray-500">
+                                        <a href="{{ url_for('capture.plate', id=record.id) }}">{{ record.best_plate_number }}</a>
+                                    </td>
+                                    <td class="text-gray-500">
+                                        <div><i class="gg-arrow-{{ record.travel_direction_class_tag }}"></i></div>
+                                    </td>
+                                    <td class="text-gray-500">
+                                        {{ record.best_confidence_percent }}
+                                    </td>
+                                    <td class="text-gray-500">
+                                        {{ record.epoch_start_datetime }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer border-top bg-gray-50">
+                            <a class="fw-bold d-flex align-items-center justify-content-center" href="{{ url_for('search.search') }}">
+                                <svg class="icon icon-xs me-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path></svg>
+                                See all
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Recent Rekor Scout Alerts -->
+                <div class="col-12 mb-4">
+                    <div class="card border-0 shadow">
+                        <div class="card-header border-bottom">
+                            <h2 class="fs-5 fw-bold mb-1">Recent Rekor Scout Alerts</h2>
+                        </div>
+                        <div class="card-body">
+                            {% for record in alpr_alert_records %}
+                                <!-- Alert -->
+                                <div class="row d-block d-sm-flex align-items-center{% if loop.last  %}{% else %}row align-items-center d-block d-sm-flex border-bottom pb-4 mb-4{% endif %}">
+                                    <div class="col-auto mb-3 mb-sm-0">
+                                        <div class="calendar d-flex"><span class="calendar-month">{{ record.month }}</span><span class="calendar-day py-2">{{ record.day }}</span></div>
+                                    </div>
+                                    <div class="col">
+                                        <a href="{{ url_for('alert.alpr_alert', id=record.id) }}"><h3 class="h5 mb-1">{{ record.plate_number }}</h3></a>
+                                        <span><b>{{ record.list_type }}</b></span>
+                                        <div class="small fw-bold"><b>Time: {{ record.epoch_time_datetime }}</b></div>
+                                        <div class="small fw-bold"><b>Location: {{ record.site_name }}</b></div>
+                                        <div class="small fw-bold"><b>Camera: {{ record.camera_name }}</b></div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="card-footer border-top bg-gray-50">
+                            <a class="fw-bold d-flex align-items-center justify-content-center" href="{{ url_for('alerts.rekor') }}">
+                                <svg class="icon icon-xs me-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path></svg>
+                                See all
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Recent Custom Alerts -->
+                <div class="col-12 mb-4">
+                    <div class="card border-0 shadow">
+                        <div class="card-header border-bottom">
+                            <h2 class="fs-5 fw-bold mb-1">Recent Custom Alerts</h2>
+                        </div>
+                        <div class="card-body">
+                            {% for record in custom_alerts %}
+                                <!-- Alert -->
+                                <div class="row d-block d-sm-flex align-items-center{% if loop.last %}{% else %}row align-items-center d-block d-sm-flex border-bottom pb-4 mb-4{% endif %}">
+                                    <div class="col-auto mb-3 mb-sm-0">
+                                        <div class="calendar d-flex"><span class="calendar-month">{{ record.month }}</span><span class="calendar-day py-2">{{ record.day }}</span></div>
+                                    </div>
+                                    <div class="col">
+                                        <a href="{{ url_for('alert.custom_alert', id=record.id) }}"><h3 class="h5 mb-1">{{ record.plate_number }}</h3></a>
+                                        <div class="small fw-bold"><b>Time: {{ record.epoch_time_datetime }}</b></div>
+                                        <div class="small fw-bold"><b>Location: {{ record.site_name }}</b></div>
+                                        <div class="small fw-bold"><b>Camera: {{ record.camera_name }}</b></div>
+                                        <div class="small fw-bold"><b>Description: {{ record.description }}</b></div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="card-footer border-top bg-gray-50">
+                            <a class="fw-bold d-flex align-items-center justify-content-center" href="{{ url_for('alerts.rekor') }}">
+                                <svg class="icon icon-xs me-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path></svg>
+                                See all
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Top Cameras -->
+        <div class="col-12 col-xl-5 col-xxl-4 mb-4">
+            <div class="col-12 px-0 mb-4">
+                <div class="card border-0 shadow">
+                    <div class="card-header border-bottom">
+                        <h2 class="fs-5 fw-bold mb-1">Top Cameras</h2>
+                        <small class="d-flex align-items-center">
+                            <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                            </svg>
+                                {{ quick_stats.start_of_month_pretty }} - {{ quick_stats.end_of_month_pretty }}
+                        </small>
+                    </div>
+                    <div class="card-body">
+                    {% for camera_id, label, count, latitude, longitude in top_cameras %}
+                        <div class="d-flex align-items-center justify-content-between {% if loop.first  %}border-bottom pb-3{% endif %} {% if not loop.first %}{% if not loop.last %}border-bottom py-3{% endif %}{% endif %} {% if loop.last  %}pt-3{% endif %}">
+                            <div>
+                                <div class="h5 mb-0 d-flex align-items-center">
+                                    <svg class="icon text-gray-400 me-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"></path>
+                                    </svg>
+                                    <div data-toggle="tooltip" title="Camera ID: {{ camera_id }}">
+                                        {{ label }}
+                                        {% if latitude != -1 and longitude != -1 %}
+                                            <span class="sidebar-icon">
+                                                <a target="_blank" href="http://maps.google.com/maps?z=6&t=m&q=loc:{{ latitude }}+{{ longitude }}">
+                                                    <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                        <path clip-rule="evenodd" fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"></path>
+                                                    </svg>
+                                                </a>
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="d-flex align-items-center fw-bold">
+                                    <h4>{{ count }}</h4>
+                                </span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 px-0 mb-4">
+                <div class="card border-0 shadow">
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col">
+                                <h2 class="fs-5 fw-bold mb-1">Database</h2>
+                            </div>
+                        </div>
+                        <div class="d-block">
+                            <div class="d-flex align-items-center me-5">
+                                <div class="icon-shape icon-sm icon-shape-tertiary rounded me-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-archive"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>
+                                </div>
+                                <div class="d-block">
+                                    <label class="mb-0">Total Records</label>
+                                    <h4 class="mb-0" data-toggle="tooltip" title="Exact Count: {{ number_of_records_raw }}">{{ number_of_records }}</h4>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center pt-3">
+                                <div class="icon-shape icon-sm icon-shape-tertiary rounded me-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-hard-drive"><line x1="22" y1="12" x2="2" y2="12"></line><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path><line x1="6" y1="16" x2="6.01" y2="16"></line><line x1="10" y1="16" x2="10.01" y2="16"></line></svg>
+                                </div>
+                                <div class="d-block">
+                                    <label class="mb-0">Size</label>
+                                    <h4 class="mb-0" data-toggle="tooltip" title="Exact Size: {{ size_of_databases_raw }} Bytes">{{ size_of_databases }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 px-0">
+                <div class="card border-0 shadow">
+                    <div class="card-header pb-5">
+                        <h2 class="fs-5 fw-bold mb-1">Last month captures by state</h2>
+                        <div id="us-map" style="height: 275px; position: relative;"></div>
+                    </div>
+                    <div class="card-body py-4">
+                    {% for region in regions %}
+                        <div class="row align-items-center{% if loop.last %}{% else %} mb-4{% endif %}">
+                            <div class="col-auto">
+                                <!-- Avatar -->
+                                <a href="#" class="image image-xs rounded-circle">
+                                <img alt="Image placeholder" src="/static/assets/{{ region['flag_uri'] }}">
+                                </a>
+                            </div>
+                            <div class="col">
+                                <div class="progress-wrapper">
+                                    <div class="progress-info">
+                                        <div class="h6 mb-0">{{ region['name'] }}<span class="text-gray-500 font-small"> ({{ region['count'] }})</span></div>
+                                        <div class="small fw-bold"><span>{{ region['percent'] }} %</span></div>
+                                    </div>
+                                    <div class="progress mb-0">
+                                        <div class="progress-bar bg-dark" role="progressbar" aria-valuenow="{{ region['count'] }}" aria-valuemin="0" aria-valuemax="{{ region['total'] }}" style="width: {{ region['percent'] }}%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                    <div class="card-footer bg-gray-50 border-top text-center">
+                        <a class="fw-bold d-flex align-items-center justify-content-center" href="../calendar.html">
+                            <svg class="icon icon-xs me-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path></svg>
+                            See all
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+    <!-- datamaps.js -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/datamaps/0.5.8/datamaps.all.js"></script>
+
+    <!-- Tooltips -->
+    <script>
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+
+    <script>
+        // example data from server
+        var series = {{ us_map_regions }};
+
+        var dataset = {};
+
+        // We need to colorize every country based on "numberOfWhatever"
+        // colors should be uniq for every value.
+        // For this purpose we create palette(using min/max series-value)
+        var onlyValues = series.map(function(obj){ return obj[1]; });
+        var minValue = Math.min.apply(null, onlyValues),
+            maxValue = Math.max.apply(null, onlyValues);
+
+        // create color palette function
+        // color can be whatever you wish
+        var paletteScale = d3.scale.linear()
+            .domain([minValue,maxValue])
+            .range(["#FCE1C3","#F8BD7A"]); // blue color
+
+        // fill dataset in appropriate format
+        series.forEach(function(item){ //
+            // item example value ["USA", 70]
+            var iso = item[0], value = item[1];
+            dataset[iso] = { numberOfThings: value, fillColor: paletteScale(value) };
+        });
+
+        // render map
+        new Datamap({
+            element: document.getElementById('us-map'),
+            scope: 'usa',
+            projection: 'mercator', // big world map
+            // countries don't listed in dataset will be painted with this color
+            fills: { defaultFill: '#F5F5F5' },
+            data: dataset,
+            geographyConfig: {
+                borderColor: '#DEDEDE',
+                highlightBorderWidth: 2,
+                // don't change color on mouse hover
+                highlightFillColor: function(geo) {
+                    return geo['fillColor'] || '#F5F5F5';
+                },
+                // only change border
+                highlightBorderColor: '#B7B7B7',
+                // show desired information in tooltip
+                popupTemplate: function(geo, data) {
+                    // don't show tooltip if country don't present in dataset
+                    if (!data) { return ; }
+                    // tooltip content
+                    return ['<div class="hoverinfo">',
+                        '<strong>', geo.properties.name, '</strong>',
+                        '<br>Count: <strong>', data.numberOfThings, '</strong>',
+                        '</div>'].join('');
+                }
+            }
+        });
+
+        <!-- Custom JS -->
+        var platesCapturedChartOptions = {
+            series: [{
+                name: 'Count',
+                data: {{ plates_captured_chart_series }}
+            }],
+            labels: {{ plates_captured_alerts_chart_labels }},
+            chart: {
+                type: 'area',
+                width: "100%",
+                height: 140,
+                sparkline: {
+                    enabled: true
+                }
+            },
+            theme: {
+                monochrome: {
+                    enabled: true,
+                    color: '#31316A',
+                }
+            },
+            tooltip: {
+                fillSeriesColor: false,
+                onDatasetHover: {
+                    highlightDataSeries: false,
+                },
+                theme: 'light',
+                style: {
+                    fontSize: '12px',
+                    fontFamily: 'Inter',
+                },
+            },
+        };
+
+        var alertsChartOptions = {
+            series: [{
+                name: 'Count',
+                data: {{ alert_chart_series }}
+            }],
+            labels: {{ plates_captured_alerts_chart_labels }},
+            chart: {
+                type: 'area',
+                width: "100%",
+                height: 140,
+                sparkline: {
+                    enabled: true
+                }
+            },
+            theme: {
+                monochrome: {
+                    enabled: true,
+                    color: '#31316A',
+                }
+            },
+            tooltip: {
+                fillSeriesColor: false,
+                onDatasetHover: {
+                    highlightDataSeries: false,
+                },
+                theme: 'light',
+                style: {
+                    fontSize: '12px',
+                    fontFamily: 'Inter',
+                },
+            },
+        };
+
+        var topRegionChartOptions = {
+            series: [{
+                name: 'Count',
+                data: {{ top_region_chart_series }}
+            }],
+            labels: {{ top_region_chart_labels }},
+            chart: {
+                type: 'area',
+                width: "100%",
+                height: 140,
+                sparkline: {
+                    enabled: true
+                }
+            },
+            theme: {
+                monochrome: {
+                    enabled: true,
+                    color: '#31316A',
+                }
+            },
+            tooltip: {
+                fillSeriesColor: false,
+                onDatasetHover: {
+                    highlightDataSeries: false,
+                },
+                theme: 'light',
+                style: {
+                    fontSize: '12px',
+                    fontFamily: 'Inter',
+                },
+            },
+        };
+
+        var platesCapturedChartEl = document.getElementById('plates-captured-chart');
+        if (platesCapturedChartEl) {
+            var platesCapturedChart = new ApexCharts(platesCapturedChartEl, platesCapturedChartOptions);
+            platesCapturedChart.render();
+        }
+
+        var alertsChartEl = document.getElementById('alerts-chart');
+        if (alertsChartEl) {
+            var alertsChart = new ApexCharts(alertsChartEl, alertsChartOptions);
+            alertsChart.render();
+        }
+
+        var topRegionChartEl = document.getElementById('top-region-chart');
+        if (topRegionChartEl) {
+            var topRegionChart = new ApexCharts(topRegionChartEl, topRegionChartOptions);
+            topRegionChart.render();
+        }
+</script>
+{% endblock javascripts %}

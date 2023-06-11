@@ -1,0 +1,313 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Capture {{ license_plate['id'] }} License Plate {{ license_plate['best_plate_number'] }} {% endblock %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+    <!-- home/capture.html -->
+    <!-- home/capture.html -->
+{% endblock stylesheets %}
+
+{% block content %}
+                <!-- home/capture.html -->
+                <div class="py-4">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+                            <li class="breadcrumb-item">
+                                <a href="#">
+                                    <svg class="icon icon-xxs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                                    </svg>
+                              </a>
+                          </li>
+                          <li class="breadcrumb-item"><a href="#">Search</a></li>
+                          <li class="breadcrumb-item active" aria-current="page">{{ license_plate['best_plate_number'] }}</li>
+                      </ol>
+                    </nav>
+                    <div class="d-flex justify-content-between w-100 flex-wrap">
+                        <div class="mb-3 mb-lg-0">
+                            <h1 class="h4">License Plate Report</h1>
+                            <p class="mb-0"></p>
+                        </div>
+                        <div>
+                            <button type="button" data-bs-toggle="modal" data-bs-target="#addAlertModal" id="addAlertModalButton" class="btn btn-primary d-inline-flex align-items-center">
+                                <svg class="icon icon-xs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path>
+                                </svg>
+                            </button>
+                            <a class="btn btn-primary d-inline-flex align-items-center" onclick="print()">
+                                <svg class="icon icon-xs" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path clip-rule="evenodd" fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row justify-content-center mt-4 pri" id="printThis">
+                    <div class="col-12 col-xl-9">
+                        <div class="card shadow border-0 p-4 p-md-5 position-relative">
+{#                            <div class="row pb-md-4 mb-4 mb-md-5 border-bottom border-light">#}
+{#                                <div class="col-6">#}
+{#                                    <div class="d-flex">#}
+{#                                        <div class="p-2">#}
+{#                                            <embed class="image-md mb-4 imageshow org_logo" id="image-display" src="data:image/svg+xml;base64,{{ settings.logo }}" alt="Missing Logo">#}
+{#                                        </div>#}
+{#                                        <div class="p-2 align-self-center">#}
+{#                                            <span><h3>{{ settings.org_name }}</h3></span>#}
+{#                                        </div>#}
+{#                                    </div>#}
+{#                                </div>#}
+{#                                <div class="col-6">#}
+{#                                    <div class="d-flex align-items-end flex-column">#}
+{#                                        <div class="mt-auto p-2">#}
+{#                                            <h1><strong>License Plate Report</strong></h1>#}
+{#                                        </div>#}
+{#                                    </div>#}
+{#                                </div>#}
+{#                            </div>#}
+                            <div class="mb-6 d-flex align-items-center justify-content-center">
+                                {% if license_plate['uuid_jpg'] %}
+                                    <img src="data:image/jpeg;base64,{{ license_plate['uuid_jpg'] }}" class="card-img-top" alt="{{ license_plate['best_plate_number'] }}">
+                                {% elif license_plate['overview_jpeg'] %}
+                                    <img src="data:image/jpeg;base64,{{ license_plate['overview_jpeg'] }}" class="img-fluid" alt="{{ license_plate['best_plate_number'] }}">
+                                {% endif %}
+                            </div>
+                            <div class="row pb-md-4 mb-4 mb-md-5">
+                                <div class="col-6">
+                                    {% if license_plate['vehicle_crop_jpeg']  %}
+                                        <img src="data:image/jpeg;base64,{{ license_plate['vehicle_crop_jpeg'] }}" class="img-thumbnail img-fluid" alt="{{ license_plate['best_plate_number'] }}">
+                                    {% endif %}
+                                    {% if license_plate['plate_crop_jpeg'] %}
+                                        <img src="data:image/jpeg;base64,{{ license_plate['plate_crop_jpeg'] }}" class="img-thumbnail img-fluid" alt="{{ license_plate['best_plate_number'] }}">
+                                    {% endif %}
+                                </div>
+                                <div class="col-6">
+                                    <div class="d-flex flex-column">
+                                        <div class="p-2">
+                                            <h1 class="display-1">
+                                                {{ license_plate['best_plate_number'] }}
+                                            </h1>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row d-flex justify-content-center mb-4 mb-md-5">
+                                <div class="col-6">
+                                    <h5>Agent Information</h5>
+                                    <dl class="row text-sm-right">
+                                        <dt class="col-3"><strong>Label:</strong></dt>
+                                        <dd class="col-9">{% if cached_agent %}{{ cached_agent.agent_label }}{% else %}{{ license_plate['agent_label'] }}{% endif %}</dd>
+                                        <dt class="col-3"><strong>UID:</strong></dt>
+                                        <dd class="col-9">{{ license_plate['agent_uid'] }}</dd>
+                                        <dt class="col-3"><strong>Version:</strong></dt>
+                                        <dd class="col-9">{{ license_plate['agent_version'] }}</dd>
+                                        <dt class="col-3"><strong>Type:</strong></dt>
+                                        <dd class="col-9">{{ license_plate['agent_type'] }}</dd>
+                                    </dl>
+                                </div>
+                                <div class="col-6">
+                                    <h5>Camera Information</h5>
+                                    <dl class="row text-sm-right">
+                                        <dt class="col-6"><strong>Label:</strong></dt>
+                                        <dd class="col-6">{% if cached_camera %}{{ cached_camera.camera_label }}{% else %}{{ license_plate['camera_label'] }}{% endif %}</dd>
+                                        <dt class="col-6"><strong>ID:</strong></dt>
+                                        <dd class="col-6">{% if cached_camera %}{{ cached_camera.camera_id }}{% else %}{{ license_plate['camera_id'] }}{% endif %}</dd>
+                                        <dt class="col-6"><strong>GPS Latitude:</strong></dt>
+                                        <dd class="col-6">
+                                            {% if cached_camera %}
+                                                {% if cached_camera.gps_latitude != -1 and cached_camera.gps_longitude != -1 %}
+                                                    <a target="_blank" href="http://maps.google.com/maps?z=6&t=m&q=loc:{{ cached_camera.gps_latitude }}+{{ cached_camera.gps_longitude }}">{{ cached_camera.gps_latitude }}</a>
+                                                {% else %}
+                                                    {{ cached_camera['gps_latitude'] }}
+                                                {% endif %}
+                                            {% else %}
+                                                {% if license_plate['gps_latitude'] != -1 and license_plate['gps_longitude'] != -1 %}
+                                                        <a target="_blank" href="http://maps.google.com/maps?z=6&t=m&q=loc:{{ license_plate['gps_latitude'] }}+{{ license_plate['gps_longitude'] }}">{{ license_plate['gps_latitude'] }}</a>
+                                                {% else %}
+                                                    {{ license_plate['gps_latitude'] }}
+                                                {% endif %}
+                                            {% endif %}
+                                        </dd>
+                                        <dt class="col-6"><strong>GPS Longitude:</strong></dt>
+                                        <dd class="col-6">
+                                            {% if cached_camera %}
+                                                {% if cached_camera.gps_longitude != -1 and cached_camera.gps_latitude != -1 %}
+                                                    <a target="_blank" href="http://maps.google.com/maps?z=6&t=m&q=loc:{{ cached_camera.gps_latitude }}+{{ cached_camera.gps_longitude }}">{{ cached_camera.gps_longitude }}</a>
+                                                {% else %}
+                                                    {{ cached_camera.gps_longitude }}
+                                                {% endif %}
+                                            {% else %}
+                                                {% if license_plate['gps_longitude'] != -1 and license_plate['gps_latitude'] != -1 %}
+                                                    <a target="_blank" href="http://maps.google.com/maps?z=6&t=m&q=loc:{{ license_plate['gps_latitude'] }}+{{ license_plate['gps_longitude'] }}">{{ license_plate['gps_longitude'] }}</a>
+                                                {% else %}
+                                                    {{ license_plate['gps_longitude'] }}
+                                                {% endif %}
+                                            {% endif %}
+                                        </dd>
+                                        <dt class="col-6"><strong>Country:</strong></dt>
+                                        <dd class="col-6">{% if cached_camera %}{{ cached_camera.country }}{% else %}{{ license_plate['country'] }}{% endif %}</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                            <div class="row d-flex justify-content-center mb-4 mb-md-5">
+                                <div class="col-6">
+                                    <h5>Capture Information</h5>
+                                    <dl class="row text-sm-right">
+                                        <dt class="col-4"><strong>Capture No.:</strong></dt>
+                                        <dd class="col-8">{{ license_plate['id'] }}</dd>
+                                        <dt class="col-4"><strong>Start Timestamp:</strong></dt>
+                                        <dd class="col-8">{{ license_plate['epoch_start_datetime'] }}</dd>
+                                        <dt class="col-4"><strong>End Timestamp:</strong></dt>
+                                        <dd class="col-8">{{ license_plate['epoch_end_datetime'] }}</dd>
+                                        <dt class="col-4"><strong>Epoch Start:</strong></dt>
+                                        <dd class="col-8">{{ license_plate['epoch_start'] }}</dd>
+                                        <dt class="col-4"><strong>Epoch End:</strong></dt>
+                                        <dd class="col-8">{{ license_plate['epoch_end'] }}</dd>
+                                        <dt class="col-4"><strong>Confidence:</strong></dt>
+                                        <dd class="col-8">{{ license_plate['best_confidence_percent'] }}</dd>
+                                        <dt class="col-4"><strong>Region:</strong></dt>
+                                        <dd class="col-8">{{ license_plate['best_region'] }}</dd>
+                                        <dt class="col-4"><strong>Travel Direction:</strong></dt>
+                                        <dd class="col-8"><gg-icon class='gg-arrow-{{ license_plate['travel_direction_class_tag'] }}'></gg-icon>({{ license_plate['travel_direction'] }}°)</dd>
+                                    </dl>
+                                </div>
+                                <div class="col-6">
+                                    <h5>Vehicle Information
+                                    <span class="sidebar-icon">
+                                        <a data-toggle="tooltip" title="Percent (%) denotes confidence in identifying a particular attribute by Rekor Scout Agent.">
+                                            <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                <path clip-rule="evenodd" fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path>
+                                            </svg>
+                                        </a>
+                                    </span>
+                                    </h5>
+                                    <dl class="row text-sm-right">
+                                        <dt class="col-3"><strong>Color:</strong></dt>
+                                        <dd class="col-9">{{ license_plate['vehicle_color_name'] }} ({{ license_plate['vehicle_color_confidence'] }})</dd>
+                                        <dt class="col-3"><strong>Year:</strong></dt>
+                                        <dd class="col-9">{{ license_plate['vehicle_year_name'] }} ({{ license_plate['vehicle_year_confidence'] }})</dd>
+                                        <dt class="col-3"><strong>Make:</strong></dt>
+                                        <dd class="col-9">{{ license_plate['vehicle_make_name'] }} ({{ license_plate['vehicle_make_confidence'] }})</dd>
+                                        <dt class="col-3"><strong>Model:</strong></dt>
+                                        <dd class="col-9">{{ license_plate['vehicle_make_model_name'] }} ({{ license_plate['vehicle_make_model_confidence'] }})</dd>
+                                        <dt class="col-3"><strong>Body Type:</strong></dt>
+                                        <dd class="col-9">{{ license_plate['vehicle_body_type_name'] }} ({{ license_plate['vehicle_body_type_confidence'] }})</dd>
+                                    </dl>
+                                </div>
+
+                            </div>
+                            <div class="card-footer text-muted">
+                                This report was generated by <a target="_blank" href="https://github.com/mibs510/OpenALPR-Webhook">OpenALPR-Webhook</a> at the request of {{ user_profile.full_name }} (<a href="mailto:{{ current_user.email }}">{{ current_user.email }}</a>) on {{ date }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modal -->
+                <div id="addAlertModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addAlertModal" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <form method="PUT" id="addAlertForm"  enctype=multipart/form-data>
+                            <input type="hidden" id="alpr_group_id" name="alpr_group_id" value="{{ license_plate['id'] }}">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="alertModal">Add Custom Alert</h5>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row mt-2">
+                                        <div class="col-sm-6">
+                                            <label class="form-label">License Plate</label>
+                                            <input type="text" id="license_plate" name="license_plate" class="form-control" value="{{ license_plate['best_plate_number'] }}">
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="form-label">Region Match</label>
+                                             <span class="sidebar-icon">
+                                                    <a data-toggle="tooltip" title="A region match is required to qualify as an alert.">
+                                                        <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                            <path clip-rule="evenodd" fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path>
+                                                        </svg>
+                                                    </a>
+                                                </span>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="region_match" name="region_match">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% if current_user.role == 1 %}
+                                    <div class="row mt-2">
+                                        <div class="col-sm-12">
+                                            <label for="users">Notify</label>
+                                            <select class="w-100 mb-0" id="users" name="users[]" multiple="multiple">
+                                                {% for user in users %}
+                                                    {% if user['username'] != current_user.username %}
+                                                    <option value="{{ user['id'] }}">{{ user['full_name'] }} ({{ user['email'] }})</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    <div class="row mt-2">
+                                        <div class="col-sm-12">
+                                            <label for="description">Description</label>
+                                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Add</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <!-- home/capture.html -->
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+            <!-- home/capture.html -->
+            <!-- Tooltips -->
+                <script>
+                    function print(){
+                        myWindow=window.open("{{ url_for('capture.print_plate', id=license_plate.id) }}");
+                        myWindow.focus();
+                        myWindow.print();
+                    }
+
+                    $(document).ready(function(){
+                        $('[data-toggle="tooltip"]').tooltip();
+                    });
+
+                var selectUsersInputEl = d.querySelector('#users');
+                if(selectUsersInputEl) {
+                    const choices = new Choices(selectUsersInputEl);
+                }
+                // Add alert
+                $('#addAlertForm').on('submit',function (e) {
+                    var formData = new FormData($("#addAlertForm")[0]);
+                    var notify_user_ids = $("#users").val();
+                    formData.append('notify_user_ids', notify_user_ids);
+                    e.preventDefault();
+                    $.ajax({
+                        type: 'PUT',
+                        url:  "{{ url_for('custom_alerts.add') }}",
+                        data: formData,
+                        async: true,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        error : function(request,error) {
+                            Swal.fire( {icon: 'error', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: JSON.parse(request.responseText)['error']})
+                        },
+                        success : function(res) {
+                            Swal.fire( {icon: 'success', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: res['message']}).then(() => {
+                                    location.reload();
+                            });
+                        }
+                    })
+                });
+                </script>
+            <!-- home/capture.html -->
+{% endblock javascripts %}

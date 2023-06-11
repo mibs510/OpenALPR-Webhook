@@ -1,0 +1,20 @@
+{
+    "name": "openalpr-webhook",
+    "mastertemplate": "OpenALPR-Webhook",
+    "version": "1.0.0",
+    "description": "OpenALPR-Webhook is a self-hosted web application that accepts Rekor Scout™ POST data allowing longer data retention.",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/mibs510/OpenALPR-Webhook"
+    },
+    "bugs": {
+        "url": "https://github.com/mibs510/OpenALPR-Webhook/issues",
+        "email": "connor@mcmillan.website"
+    },
+    "author": "Connor McMillan <connor@mcmillan.website> (https://mcmillan.website)",
+    "engines": {
+        "node": ">=10.0.0"
+    },
+    "dependencies": {},
+    "devDependencies": {}
+}

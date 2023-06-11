@@ -1,0 +1,400 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Users {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+            <!-- settings/users.html -->
+            <link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+            <!-- settings/users.html -->
+{% endblock stylesheets %}
+
+{% block content %}
+                <!-- settings/users.html -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+                    <div class="d-block mb-4 mb-md-0">
+                        <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
+                            <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+                                <li class="breadcrumb-item">
+                                    <a href="#">
+                                        <svg class="icon icon-xxs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                                    </a>
+                                </li>
+                                <li class="breadcrumb-item"><a href="#">Settings</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">User List</li>
+                            </ol>
+                        </nav>
+                        <h2 class="h4">User List</h2>
+                    </div>
+                    <div>
+                        <a class="btn btn-primary d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                            <svg class="icon icon-xs me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div id="Users"></div>
+
+                <!-- Edit User Modal -->
+                <div id="profileModel" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="profileModel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="profileModel">Edit User</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form method="put" id="userEditForm"  enctype=multipart/form-data>
+                                <input type="hidden" id="user_id" name="user_id">
+                                <div class="modal-body">
+                                    <div class="row mt-2">
+                                        <div class="col-sm-6">
+                                            <label class="form-label">Status</label>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="status" name="status">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="form-label">Administrator</label>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="administrator" name="administrator">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-sm-6">
+                                            <label class="form-label">Full Name</label>
+                                            <input type="text" id="full_name" name="full_name" class="form-control">
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="form-label">Business/Organization</label>
+                                            <input type="text" id="bio" name="bio" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-sm-6">
+                                            <label class="form-label">Email</label>
+                                            <input type="email" id="email" name="email" class="form-control" readonly>
+                                            <section class="display-error-message"></section>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="form-label">Phone</label>
+                                            <input type="text" id="phone" name="phone" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-sm-6">
+                                            <label class="form-label">Website</label>
+                                            <input type="text" id="website" name="website" class="form-control">
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="form-label">Zip Code</label>
+                                            <input type="text" id="zipcode" name="zipcode" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-sm-12">
+                                            <label class="form-label">Address</label>
+                                            <input type="text" id="address" name="address" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-sm-12">
+                                            <label class="form-label">API_KEY</label>
+                                            <input type="text" id="api_key" name="api_key" class="form-control" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-block btn-danger" onclick="resetPassword()">Reset Password</button>
+                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!-- End of Edit User Modal -->
+
+                <!-- Add User Modal -->
+                <div class="modal fade" id="addUserModal" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body px-md-5">
+                                <h2 class="h4 text-center">Add Account</h2>
+                                <form method="POST" id="addUserForm" enctype=multipart/form-data>
+                                    <!-- Form -->
+                                    <div class="form-group mb-4">
+                                        <label for="email">Email</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text border-gray-300" id="basic-addon3">
+                                                <svg class="icon icon-xxs" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+                                                </svg>
+                                            </span>
+                                            <input type="email" class="form-control border-gray-300" placeholder="example@company.com" id="email" name="email" autofocus required>
+                                        </div>
+                                    </div>
+                                    <!-- End of Form -->
+                                    <!-- Form -->
+                                    <div class="form-group mb-4">
+                                        <label for="username">Username</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text border-gray-300" id="basic-addon3">
+                                                <svg class="icon icon-xxs" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                    <path clip-rule="evenodd" fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path>
+                                                </svg>
+                                            </span>
+                                            <input type="text" class="form-control border-gray-300" placeholder="example" id="username" name="username" autofocus required>
+                                        </div>
+                                    </div>
+                                    <!-- End of Form -->
+                                    <div class="form-group">
+                                        <!-- Form -->
+                                        <div class="form-group mb-4">
+                                            <label for="password">Your Password</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text border-gray-300" id="basic-addon4">
+                                                    <svg class="icon icon-xxs" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                                                    </svg>
+                                                </span>
+                                                <input type="password" placeholder="Password" class="form-control border-gray-300" id="password" name="password" required>
+                                            </div>
+                                        </div>
+                                        <!-- End of Form -->
+                                        <!-- Form -->
+                                        <div class="form-group mb-4">
+                                            <label for="confirm_password">Confirm Password</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text border-gray-300" id="basic-addon5">
+                                                    <svg class="icon icon-xxs" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                                                    </svg>
+                                                </span>
+                                                <input type="password" placeholder="Confirm Password" class="form-control border-gray-300" id="confirm_password" name="confirm_password" required>
+                                            </div>
+                                        </div>
+                                        <!-- End of Form -->
+
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" name="register" class="btn btn-primary">Add User</button>
+                                    </div>
+                                </form>
+                                <div class="text-center mt-3 mb-2"></div>
+                                <div class="d-flex justify-content-center my-2"></div>
+                                <div class="d-flex justify-content-center align-items-center mt-4"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- End of Add User Modal -->
+                <!-- settings/users.html -->
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+            <!-- settings/users.html -->
+            <script src="//unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+            <script>
+                const updateUrl = (prev, query) => {
+                    return prev + (prev.indexOf('?') >= 0 ? '&' : '?') + new URLSearchParams(query).toString();
+                };
+                new gridjs.Grid({
+                    columns: [
+                        { id: 'id', hidden: true, sort: false },
+                        { id: 'avatar', hidden: true, sort: false },
+                        { id: 'email', hidden: true, sort: false },
+                        { id: 'full_name', name: 'Name', sort: false },
+                        { id: 'username', name: 'Username/Email', sort: false,
+                            formatter: (cell, row) => {
+                                return gridjs.html(`<div class="d-flex align-items-center"><img src="data:image/png;base64, ${row.cells[1].data}" class="avatar rounded-circle me-3" alt="Avatar"><div class="d-block"><span class="fw-bold">${cell}</span><div class="small text-gray"><a href="mailto:${row.cells[2].data}">${row.cells[2].data}</a></div></div></div>`)
+                            }
+                        },
+                        { id: 'website', name: 'Website', sort: false,
+                            formatter: (cell, row) => {
+                                return gridjs.html(`<a target="_blank" href="${cell}">${cell}</a>`)
+                            }
+                        },
+                        { id: 'phone', name: 'Phone', sort: false,
+                            formatter: (cell, row) => {
+                                return gridjs.html(`<a href="tel:${cell}">${cell}</a>`)
+                            }
+                        },
+                        { id: 'date_created', name: 'Registration Date', sort: false},
+                        { id: 'api_token', name: 'API_TOKEN', sort: false,
+                            formatter: (cell, row) => {
+                                return gridjs.html(`...${cell}`)
+                            }
+                        },
+                        { name: 'Actions',
+                            formatter: (cell, row) => {
+                            return gridjs.html(`<button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#profileModel" id="editUser_${row.cells[0].data}" onclick="getUser(${row.cells[0].data})" value="${row.cells[0].data}">Edit</button>`)
+                            }
+                        },
+                    ],
+                    server: {
+                    url: '{{ url_for('users.search') }}',
+                    then: results => results.data,
+                    total: results => results.total,
+                    },
+                    search: {
+                        enabled: true,
+                        debounceTimeout: 1000,
+                        server: {
+                            url: (prev, search) => {
+                                return updateUrl(prev, {search});
+                            },
+                        },
+                    },
+                    pagination: {
+                        enabled: true,
+                        resetPageOnUpdate: true,
+                        server: {
+                            url: (prev, page, limit) => {
+                                return updateUrl(prev, {start: page * limit, length: limit});
+                            },
+                        },
+                    },
+                }).render(document.getElementById('Users'));
+                // get user
+                function getUser(value){
+                    $.ajax({
+                        url : "{{ url_for('profile.edit') }}",
+                        type : 'GET',
+                        data : {'user_id':value},
+                        dataType:'json',
+                        success : function(data) {
+                            $('#user_id').val(data['user_id'])
+                            $('#full_name').val(data['full_name'])
+                            $('#bio').val(data['bio'])
+                            $('#email').val(data['email'])
+                            $('#phone').val(data['phone'])
+                            $('#website').val(data['website'])
+                            $('#zipcode').val(data['zipcode'])
+                            $('#address').val(data['address'])
+                            $('#api_key').val(data['api_key'])
+                            if (data['status'] === 1){
+                                $('#status').prop('checked', true);
+                            }
+                            if (data['administrator'] === 1){
+                                $('#administrator').prop('checked', true);
+                            }
+                        },
+                        error : function(request,error){Swal.fire({icon: 'error', buttonsStyling: false,
+                            customClass: {confirmButton: 'btn btn-primary'}, text: JSON.parse(request.responseText)['error']})}
+                    })
+                }
+                // edit user
+                $('#userEditForm').on('submit',function (e) {
+                    var formData = new FormData($("#userEditForm")[0]);
+                    e.preventDefault();
+                    $.ajax({
+                        type: 'PUT',
+                        url:  "{{ url_for('users.edit') }}",
+                        data: formData,
+                        async: true,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success : function(res) {
+                            Swal.fire( {icon: 'success', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: res['message']}).then(() => {
+                                location.reload();
+                            });
+                        },
+                        error : function(request,error) {
+                            Swal.fire( {icon: 'error', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: JSON.parse(request.responseText)['error']})
+                        },
+                    })
+                });
+                // Add user
+                $('#addUserForm').on('submit',function (e) {
+                    var formData = new FormData($("#addUserForm")[0]);
+                    e.preventDefault();
+                    $.ajax({
+                        type: 'POST',
+                        url:  "{{ url_for('users.register') }}",
+                        data: formData,
+                        async: true,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        error : function(request,error) {
+                            Swal.fire( {icon: 'error', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: JSON.parse(request.responseText)['error']})
+                        },
+                        success : function(res) {
+                            Swal.fire( {icon: 'success', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: res['message']}).then(() => {
+                                location.reload();
+                            });
+                        }
+                    })
+                });
+                // Reset Password
+                function resetPassword(){
+                    var formData = new FormData($("#userEditForm")[0]);
+                    $.ajax({
+                        type: 'POST',
+                        url:  "{{ url_for('users.check_smtp') }}",
+                        async: true,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        error : function(request,error) {
+                            Swal.fire({icon: 'error', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                text: JSON.parse(request.responseText)['error']})
+                        },
+                        success : function(res){
+                            Swal.fire({
+                                title: "Are you sure?",
+                                text: "Resetting a password will overwrite the current password",
+                                showCancelButton: true,
+                                icon: "warning",
+                                cancelButtonText: "Cancel",
+                                confirmButtonText: "Yes, reset it!",
+                                buttonsStyling: false, customClass: {cancelButton:'mb-2 me-2 btn btn-primary', confirmButton: 'mb-2 me-2 btn btn-danger'}
+                            }).then((isConfirm) => {
+                                if (isConfirm.isConfirmed) {
+                                    $.ajax({
+                                        type: 'POST',
+                                        url:  "{{ url_for('users.reset_password') }}",
+                                        data: formData,
+                                        async: true,
+                                        cache: false,
+                                        contentType: false,
+                                        processData: false,
+                                        beforeSend: function (){
+                                            Swal.fire({
+                                                text: 'Resetting user password...',
+                                                didOpen: () => {
+                                                    Swal.showLoading()
+                                                },
+                                            })
+                                        },
+                                        error : function(request,error) {
+                                            Swal.fire( {icon: 'error', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                                text: JSON.parse(request.responseText)['error']})
+                                        },
+                                        success : function(res) {
+                                            Swal.fire( {icon: 'success', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                                text: res['message']})
+                                        },
+                                        complete: function(){
+                                            Swal.hideLoading()
+                                        }
+                                    })
+                                }
+                                return false;
+                            });
+                        }
+                    });
+                }
+            </script>
+            <!-- settings/users.html -->
+{% endblock javascripts %}

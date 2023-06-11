@@ -1,0 +1,98 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} License Plates {% endblock %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+            <!-- home/alerts.html -->
+            <link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+            <!-- home/alerts.html -->
+{% endblock stylesheets %}
+
+{% block content %}
+                <!-- home/alerts.html -->
+                <div class="py-4">
+                    <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
+                        <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+                            <li class="breadcrumb-item">
+                                <a href="">
+                                    <svg class="icon icon-xxs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                                    </svg>
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item"><a href="#">Alerts</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Rekor™ Scout</li>
+                        </ol>
+                    </nav>
+                    <div class="d-flex justify-content-between w-100 flex-wrap">
+                        <div class="mb-3 mb-lg-0">
+                            <h1 class="h4">Rekor™ Scout Alerts</h1>
+                            <p class="mb-0">View all alerts from Rekor™ Scout.</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="rekorScoutAlerts"></div>
+                <!-- home/alerts.html -->
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+            <!-- home/alerts.html -->
+            <script src="https://cdn.jsdelivr.net/npm/gridjs@6.0.6/dist/gridjs.production.min.js"></script>
+            <script>
+                $(document).ready(function(){
+                    $('[data-toggle="tooltip"]').tooltip();
+                });
+                const updateUrl = (prev, query) => {
+                    return prev + (prev.indexOf('?') >= 0 ? '&' : '?') + new URLSearchParams(query).toString();
+                };
+
+                new gridjs.Grid({
+                    columns: [
+                        { id: 'id', name:'ID', hidden: true, sort: false },
+                        { id: 'site_name', name: 'Site', sort: false },
+                        { id: 'camera_name', name: 'Camera', sort: false },
+                        { id: 'plate_number', name: 'Plate Number', sort: false,
+                            formatter: (cell, row) => {
+                                return gridjs.h('text-default', {
+                                    className: '',
+                                }, gridjs.html(`<a href="/alert/rekor/${row.cells[0].data}" >${cell}</a>`));
+                            }
+                        },
+                        { id: 'plate_crop_jpeg', name: 'Plate', sort: false, formatter: (cell) =>
+                            gridjs.html(`<img src="data:image/png;base64, ${cell}"></img>`)
+                        },
+                        { id: 'travel_direction_class_tag', name: 'Direction', sort: false, formatter: (cell) =>
+                            gridjs.html(`<gg-icon class='gg-arrow-${cell}'></gg-icon>`)
+                        },
+                        { id: 'best_confidence_percent', name: 'Confidence', sort: false },
+                        { id: 'epoch_time', name: 'Time', sort: false },
+                    ],
+                    server: {
+                    url: '{{ url_for('alpr_alerts.query') }}',
+                    then: results => results.data,
+                    total: results => results.total,
+                    },
+                    search: {
+                        enabled: true,
+                        debounceTimeout: 1000,
+                        server: {
+                            url: (prev, search) => {
+                                return updateUrl(prev, {search});
+                            },
+                        },
+                    },
+                    pagination: {
+                        enabled: true,
+                        resetPageOnUpdate: true,
+                        server: {
+                            url: (prev, page, limit) => {
+                                return updateUrl(prev, {start: page * limit, length: limit});
+                            },
+                        },
+                    },
+                }).render(document.getElementById('rekorScoutAlerts'));
+            </script>
+            <!-- home/alerts.html -->
+{% endblock javascripts %}
