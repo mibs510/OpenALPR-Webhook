@@ -46,7 +46,7 @@ It was designed with an emphasis on security to meet organization/business needs
 TBD
 
 ### Bare Server
-1. apt-install python3.10 redis-server && systemctl enable redis-server && systemctl start redis-server
+1. apt-install build-essential python3 python3-dev redis-server && systemctl enable redis-server && systemctl start redis-server
 2. git https://github.com/mibs510/OpenALPR-Webhook
 3. cd OpenALPR-Webhook
 4. pip3 install -r requirements.txt
