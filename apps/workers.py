@@ -1,21 +1,31 @@
 #!/usr/bin/env python
 import argparse
+import configparser
 import multiprocessing
+import os
 import platform
+import signal
 import sys
+from multiprocessing.connection import Listener
 
 import redis as redis
 from redis import Redis
 
 from apps import WorkerType
+from apps.alpr.enums import MultiProcessCommand
 
 # Globals
-worker_pids = []
+worker_pids = {}
 redis = redis.Redis()
-parser = argparse.ArgumentParser("Start camera and general workers")
-parser.add_argument('--camera_workers', '-c', type=int, help="Number of workers for camera focus & zoom")
-parser.add_argument('--general_workers', '-g', type=int, help="Number of general workers")
+parser = argparse.ArgumentParser("Redis/RQ-Python Worker Manager Server")
 args = parser.parse_args()
+
+config = configparser.ConfigParser()
+config.read("secrets.ini")
+
+address = ('localhost', 3565)
+listener = Listener(address, authkey=bytes(config['app']['secret_key'], 'utf-8'))
+connection = listener.accept()
 
 
 def start_worker(i, type):
@@ -67,12 +77,6 @@ def start_worker(i, type):
 
 
 if __name__ == "__main__":
-    if args.camera_workers is None or args.camera_workers <= 0:
-        sys.exit("Camera workers must be > 0")
-
-    if args.camera_workers is None or args.camera_workers <= 0:
-        sys.exit("Camera workers must be > 0")
-
     if platform.system() == "Windows":
         sys.exit("Redis cannot fork on Windows! Only on *nix!")
 
@@ -80,13 +84,31 @@ if __name__ == "__main__":
     redis.flushall()
     redis.flushdb()
 
-    # Camera workers that force focus & zoom infinitely until told to stop or application stops.
-    for i in range(args.camera_workers):
-        p = multiprocessing.Process(target=start_worker, args=(i, WorkerType.Camera,))
-        p.start()
+    while True:
+        message = connection.recv()
+        if MultiProcessCommand.START_WORKER in message:
+            # message = "start-worker CAMERA_ID"
+            # message = ['start-worker', 'CAMERA_ID']
+            worker_name = str(message).split(' ')[1]
 
-        if platform.system() == "Linux":
-            worker_pids.append(p.pid)
+            # Kill the worker if it's alive
+            if worker_name in worker_pids.items():
+                os.kill(worker_pids.worker_name, signal.SIGKILL)
+
+            p = multiprocessing.Process(target=start_worker, args=(worker_name, WorkerType.Camera,))
+            p.start()
+
+            if platform.system() == "Linux":
+                worker_pids.worker_name = p.pid
+                print("PIDS: {}".format(worker_pids))
+
+        if message == MultiProcessCommand.CLOSE_CONNECTION:
+            connection.close()
+            break
+
+    listener.close()
+
+    # Camera workers that force focus & zoom infinitely until told to stop or application stops.
 
     # General workers that download images and send alerts.
     for i in range(args.general_workers):
@@ -96,4 +118,4 @@ if __name__ == "__main__":
         if platform.system() == "Linux":
             worker_pids.append(p.pid)
 
-    print("PIDS: {}".format(worker_pids))
+

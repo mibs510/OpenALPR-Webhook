@@ -102,6 +102,10 @@ class CameraSettings(db.Model):
         return cls.query.filter_by(enable=True)
 
     @classmethod
+    def get_all_enabled_count(cls) -> int:
+        return cls.query.filter_by(enable=True).count()
+
+    @classmethod
     def get_camera_label(cls, _camera_id: int) -> "CameraSettings":
         camera = cls.query.filter_by(camera_id=_camera_id).first()
         return camera.camera_label

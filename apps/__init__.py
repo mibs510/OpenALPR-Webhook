@@ -1,3 +1,4 @@
+import os.path
 import platform
 import subprocess
 from datetime import datetime
@@ -79,11 +80,17 @@ def configure_database(app):
         # Start redis workers on Linux only
         if platform.system() == "Linux":
             from apps.alpr.models.settings import CameraSettings
-            camera_workers = len(CameraSettings.get_all_enabled())
-            workers_cmd = subprocess.run(["./workers.py", "-c", camera_workers, "-g", camera_workers])
-            print("workers_cmd.returncode = {}".format(workers_cmd.returncode))
-            print("workers_cmd.stdout = {}".format(workers_cmd.stdout))
-            print("workers_cmd.stderr = {}".format(workers_cmd.stderr))
+            camera_workers = CameraSettings.get_all_enabled_count()
+            workers_cmd = subprocess.Popen(["python3", os.path.dirname(os.path.realpath(__file__)) +
+                                            "/workers.py", "-c", str(camera_workers), "-g", str(camera_workers)],
+                                           stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+            output, error = workers_cmd.communicate()
+            if workers_cmd.returncode != 0:
+                app.logger.info("workers_cmd.returncode = {}".format(workers_cmd.returncode))
+                app.logger.info("workers_cmd.errorcode = {}".format(str(error, 'utf-8')))
+
+            app.logger.info("workers_cmd.stdout = {}".format(workers_cmd.stdout))
+            app.logger.info("workers_cmd.stderr = {}".format(workers_cmd.stderr))
 
 
 def create_app(config) -> Flask:

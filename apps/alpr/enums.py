@@ -6,6 +6,11 @@ class AccountStatus(enum.Enum):
     ACTIVATED = 1
 
 
+class AccountVerified(enum.Enum):
+    NON_VERIFIED = 0
+    VERIFIED = 1
+
+
 class ChartType(enum.Enum):
     ALERT_CHART = "alert-chart"
     PLATES_CAPTURED_CHART = "plates-captured-chart"
@@ -18,14 +23,15 @@ class DataType(enum.Enum):
     VEHICLE = "vehicle"
 
 
+class MultiProcessCommand(enum.Enum):
+    START_WORKER = "start-worker"
+    STOP_WORKER = "stop-worker"
+    CLOSE_CONNECTION = "close"
+
+
 class UserRole(enum.Enum):
     ADMIN = "ADMIN"
     REGULAR = "NONADMIN"
-
-
-class AccountVerified(enum.Enum):
-    NON_VERIFIED = 0
-    VERIFIED = 1
 
 
 class WorkerType(enum.Enum):
