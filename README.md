@@ -12,8 +12,11 @@ It was designed with an emphasis on security to meet organization/business needs
 - 👉 IPBan (fail2ban for Flask) with [IPAbuseDB.com](https://ipabusedb.com) integration
 - 👉 Webhook endpoint security
 
+# ❗ This project is still in pre-release.
 
 # 🐛 Known Bugs
+- Worker management needs reimplementation
+  - Currently working on this
 - Manually requeuing jobs fail
 - ~~Searching plates will only work if pagination position is on page 1~~
   - ~~This is a grid.js issue [#1314](https://github.com/grid-js/gridjs/issues/1314) [#1344](https://github.com/grid-js/gridjs/pull/1334) [#1311](https://github.com/grid-js/gridjs/issues/1311).~~
@@ -46,7 +49,7 @@ It was designed with an emphasis on security to meet organization/business needs
 TBD
 
 ### Bare Server
-1. apt-install build-essential python3 python3-dev redis-server && systemctl enable redis-server && systemctl start redis-server
+1. apt install build-essential python3 python3-dev redis-server && systemctl enable redis-server && systemctl start redis-server
 2. git https://github.com/mibs510/OpenALPR-Webhook
 3. cd OpenALPR-Webhook
 4. pip3 install -r requirements.txt
