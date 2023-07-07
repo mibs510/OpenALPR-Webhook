@@ -3,12 +3,14 @@ from flask import render_template, request, redirect, url_for
 from flask_login import login_required, current_user
 from flask_paginate import get_page_parameter, Pagination
 
-from apps import IPBanConfig, ip_ban_config
+from apps import ip_ban_config
 from apps.alpr.models.settings import EmailNotificationSettings, TwilioNotificationSettings, GeneralSettings, PostAuth
 from apps.alpr.routes.settings import blueprint
 from apps.alpr.routes.settings.cameras.manufacturers import get_camera_manufacturers
 from apps.authentication.models import User, UserProfile
 from apps.authentication.routes import ROLE_ADMIN
+from worker_manager import WorkerManager
+from worker_manager_enums import WMSCommand
 
 
 @blueprint.route('/agents', methods=["GET"])
@@ -37,6 +39,24 @@ def general():
 
     return render_template('settings/general.html', segment='settings-general', settings=GeneralSettings.get_settings(),
                            ipban=ip_ban_config.get_settings(), post_auth_levels=PostAuth)
+
+
+@blueprint.route('/maintenance/app', methods=["GET"])
+@login_required
+def maintenance_app():
+    if current_user.role != ROLE_ADMIN:
+        return render_template('home/page-403.html')
+
+    wms_status = False
+    try:
+        wms = WorkerManager(WMSCommand.ACK)
+        wms.send()
+        wms_status = wms.last_connection()
+    except Exception:
+        pass
+
+    return render_template('settings/maintenance-app.html', segment='settings-maintenance-app',
+                           wms_status=wms_status)
 
 
 @blueprint.route('/notifications', methods=["GET"])

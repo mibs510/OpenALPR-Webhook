@@ -15,6 +15,9 @@ from apps.authentication.models import UserProfile, User
 @blueprint.route('/custom/<id>', methods=["GET"])
 @login_required
 def custom_alert(id):
+    if id is None:
+        return render_template('home/page-404.html')
+
     alert = CustomAlert.filter_by_id_and_beautify(id)
     dt = helpers.Timezone(current_user)
 
@@ -33,6 +36,9 @@ def custom_alert(id):
 @blueprint.route('/custom/print/<id>', methods=["GET"])
 @login_required
 def print_custom_alert(id):
+    if id is None:
+        return render_template('home/page-404.html')
+
     alert = ALPRAlert.filter_by_id_and_beautify(id)
     dt = helpers.Timezone(current_user)
 
@@ -50,6 +56,9 @@ def print_custom_alert(id):
 @blueprint.route('/rekor/<id>', methods=["GET"])
 @login_required
 def alpr_alert(id):
+    if id is None:
+        return render_template('home/page-404.html')
+
     alert = ALPRAlert.filter_by_id_and_beautify(id)
     dt = helpers.Timezone(current_user)
 
@@ -67,6 +76,9 @@ def alpr_alert(id):
 @blueprint.route('/rekor/print/<id>', methods=["GET"])
 @login_required
 def print_alpr_alert(id):
+    if id is None:
+        return render_template('home/page-404.html')
+
     alert = ALPRAlert.filter_by_id_and_beautify(id)
     dt = helpers.Timezone(current_user)
 

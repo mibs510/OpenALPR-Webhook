@@ -121,6 +121,10 @@
             <!-- settings/agents.html -->
             <script src="//unpkg.com/gridjs/dist/gridjs.umd.js"></script>
             <script>
+                $(document).ready(function(){
+                    $('[data-toggle="tooltip"]').tooltip();
+                });
+
                 function getAgent(value){
                     $.ajax({
                         url : "{{ url_for('agents.edit') }}",
@@ -171,9 +175,6 @@
                     })
                 });
 
-                $(document).ready(function(){
-                    $('[data-toggle="tooltip"]').tooltip();
-                });
                 const updateUrl = (prev, query) => {
                     return prev + (prev.indexOf('?') >= 0 ? '&' : '?') + new URLSearchParams(query).toString();
                 };

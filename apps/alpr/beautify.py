@@ -1,4 +1,5 @@
 import json
+import logging
 import time
 
 import pycountry
@@ -68,11 +69,12 @@ def human_format(num: int) -> str:
     return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
 
 
-# Thanks to @hostingutilities.com at stackoverflow.com
-# https://stackoverflow.com/a/43750422
-def human_size(bytes: int, units=[' bytes','KB','MB','GB','TB', 'PB', 'EB']) -> str:
-    """ Returns a human readable string representation of bytes """
-    return str(bytes) + units[0] if bytes < 1024 else human_size(bytes >> 10, units[1:])
+def human_size(num, suffix="B"):
+    for unit in ["", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"]:
+        if abs(num) < 1024.0:
+            return f"{num:3.1f}{unit}{suffix}"
+        num /= 1024.0
+    return f"{num:.1f}Yi{suffix}"
 
 
 def get_negative_mtm_svg_html_arrow() -> Markup:
@@ -103,4 +105,4 @@ def name(ugly_name: str) -> str:
 
 
 def print_json(json_obj: str) -> None:
-    print(json.dumps(json_obj, ensure_ascii=False, indent=4))
+    logging.debug(json.dumps(json_obj, ensure_ascii=False, indent=4))

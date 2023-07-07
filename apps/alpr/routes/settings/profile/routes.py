@@ -6,6 +6,7 @@ from flask import request, jsonify
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 
+from apps import helpers
 from apps.alpr.routes.settings.profile import blueprint
 from apps.authentication.models import User, UserProfile
 from apps.authentication.routes import upload_folder_name, ROLE_ADMIN, ROLE_USER, STATUS_ACTIVE, STATUS_SUSPENDED
@@ -55,6 +56,8 @@ def edit():
 
             # Change avatar
             if image:
+                # Create directory if it doesn't exist
+                helpers.mkdir(upload_folder_name)
                 filename = unique_file_name(secure_filename(image.filename))
                 full_file_path = os.path.join(upload_folder_name, filename)
                 try:

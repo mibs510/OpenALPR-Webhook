@@ -40,27 +40,32 @@ def download_plate_image(agent_uid: str, img_uuid: str, data_type: str, foreign_
 
     # Get agent IP/hostname & port
     agent = AgentSettings.filter_by_agent_uid(agent_uid)
+
+    download_dir = os.path.abspath(os.path.dirname(__file__) + "../../../") + "/" + download_folder_name
+
+    # Create directory when needed
+    if not os.path.exists(download_dir):
+        os.makedirs(download_dir)
+
+    # Email object
     email = Email()
-    email.tag = "Agent"
+    email.tag = Tag.AGENT.value
+    email.subject = "Plate Image Save Failed"
+    email.recipients = EmailNotificationSettings.recipients
 
     if agent is None:
-        logging.info("Agent does not exist.")
-        email.subject = "Unknown Agent"
-        email.body = "Failed to download high resolution image. Agent does not exist." \
-                     "\n\nAgent UID: {}\nIMG UID: {}".format(agent_uid, img_uuid)
-        email.send()
-        raise Exception("Failed to download a plate image. Agent does not exist.")
+        logging.info("Agent (ID: {}) does not exist.".format(agent_uid))
+        raise Exception("Failed to download a plate image. Agent (ID: {}) does not exist.".format(agent_uid))
     elif agent.enabled:
+        url = "http://{}:{}/img/{}.jpg".format(agent.ip_hostname, agent.port, img_uuid)
         try:
-            url = "http://{}:{}/img/{}.jpg".format(agent.ip_hostname, agent.port, img_uuid)
             logging.info("Downloading: {}".format(url))
             # Download it
             req = requests.get(url, stream=True)
 
             if req.status_code == 200:
                 # Create a path to save it to
-                full_file_path = Path(os.path.abspath(os.path.dirname(__file__) + "../../../") + "/" +
-                                      download_folder_name + img_uuid + ".jpg").absolute()
+                full_file_path = Path(download_dir + img_uuid + ".jpg").absolute()
                 # Write to disk
                 with open(full_file_path, 'wb') as jpg:
                     shutil.copyfileobj(req.raw, jpg)
@@ -68,63 +73,74 @@ def download_plate_image(agent_uid: str, img_uuid: str, data_type: str, foreign_
             else:
                 logging.info("Failed to download high resolution plate image. HTTP status_code={}".format(
                     req.status_code))
-                email.subject = "High Resolution Image Download Failed"
-                email.body = "Failed to download high resolution image. HTTP status code from agent was not 200.\n\n" \
-                             "Agent UID: {}\nIMG UID: {}\nHTTP Status: {}".format(agent_uid, img_uuid,
-                                                                                  req.status_code)
+
+                email.body = "⚠️ Failed to download high resolution image. " \
+                             "HTTP status code from agent was not 200.\n\nLabel: {}\nUID: {}\n" \
+                             "IMG UID: {}\nURL: {}\nHTTP Status: {}".format(
+                    agent.agent_label, agent_uid, img_uuid, url, req.status_code)
                 email.send()
-                raise Exception("Failed to download the plate image. HTTP status_code={}".format(req.status_code))
+
+                raise Exception("Failed to download high resolution plate image. HTTP status_code={}".format(
+                    req.status_code))
 
         except Exception as ex:
             logging.info("Failed to download the plate image")
-            email.subject = "High Resolution Image Download Failed"
-            email.body = "Failed to download high resolution image. Incorrect IP/hostname & port? Make sure" \
-                         "OpenALPR-Webhook can access the agent.\n\nAgent UID: {}\nIMG UID: {}\n" \
-                         "Exception: {}".format(agent_uid, img_uuid, ex)
+
+            email.body = "⚠️ Failed to download high resolution image. Incorrect IP/hostname & port? Make sure" \
+                         "OpenALPR-Webhook can access the agent.\n\nLabel: {}\nUID: {}\nIMG UID: {}\n" \
+                         "URL: {}\nException: {}".format(agent.agent_label, agent_uid, img_uuid, url, ex)
             email.send()
             raise Exception(ex)
 
         # Find the original record
         record = None
+        dt = DataType(data_type)
 
-        if data_type == DataType.GROUP:
+        if dt == DataType.GROUP:
             record = ALPRGroup.filter_by_id(foreign_id)
-        elif data_type == DataType.ALERT:
+        elif dt == DataType.ALERT:
             record = ALPRAlert.filter_by_id(foreign_id)
-        elif data_type == DataType.VEHICLE:
+        elif dt == DataType.VEHICLE:
             record = Vehicle.filter_by_id(foreign_id)
+        elif dt is None:
+            raise Exception("Unknown data_type = {}".format(data_type))
 
-        # Insert the image in the db
-        try:
-            # Read it while encoding it into base64
-            with open(full_file_path, "rb") as image_file:
-                encoded_string = base64.b64encode(image_file.read())
-            uuid_jpg = encoded_string.decode("utf-8")
+        if record is not None:
+            # Insert the image in the db
+            try:
+                # Read it while encoding it into base64
+                with open(full_file_path, "rb") as image_file:
+                    encoded_string = base64.b64encode(image_file.read())
+                uuid_jpg = encoded_string.decode("utf-8")
 
-            # Insert into `uuid_jpg column`
-            record.uuid_jpg = uuid_jpg
+                # Insert into `uuid_jpg column`
+                record.uuid_jpg = uuid_jpg
 
-            # Save/update the db
-            record.save()
+                # Save/update the db
+                record.save()
 
-            # Delete the .jpg afterwards
-            if os.path.isfile(full_file_path):
-                os.remove(full_file_path)
-            return True
-        except Exception as ex:
-            logging.exception(ex)
-            logging.info("Failed to save the plate image")
-            EmailNotificationSettings.send("App", "Plate Image Save Failed",
-                                           "Failed to save plate image into the database."
-                                           "\n\nAgent UID: {}\nIMG UID: {}\nException: {}".format(agent_uid, img_uuid,
-                                                                                                  ex))
-            # Delete the jpg if something happens above
-            # if os.path.isfile(full_file_path):
-            #     os.remove(full_file_path)
+                # Delete the .jpg afterwards
+                if os.path.isfile(full_file_path):
+                    os.remove(full_file_path)
+                return True
+            except Exception as ex:
+                logging.exception(ex)
+                logging.info("Failed to save the plate image")
 
-            raise Exception(ex)
+                email.body = "⚠️ Failed to download high resolution image from agent.\n\n" \
+                             "Label: {}\nUID: {}\nImage UID: {}\nException: {}\n".format(agent.agent_label,
+                                                                                         agent.agent_uid, img_uuid, ex)
+                email.send()
+
+                # Delete the jpg if something happens above
+                if os.path.isfile(full_file_path):
+                    os.remove(full_file_path)
+                raise Exception(ex)
+        else:
+            logging.error("Record #{} of type {} not found. dt = {}".format(foreign_id, data_type, dt))
+
     elif not agent.enabled:
-        logging.info("Agent is disabled.")
+        logging.info("Agent (Label: {}) is disabled.".format(agent.agent_label))
 
 
 def focus_camera(camera_id: int):
@@ -132,6 +148,12 @@ def focus_camera(camera_id: int):
     # connections needs to be reintroduced.
     app = create_app(app_config)
     app.app_context().push()
+
+    # Email
+    email = Email()
+    email.tag = Tag.CAMERA.value
+    email.subject = "Force Focus & Zoom Failed"
+    email.recipients = EmailNotificationSettings.recipients
 
     # Run in an infinite loop unless if an administrator disables forced focus & zoom checks
     while True:
@@ -154,79 +176,86 @@ def focus_camera(camera_id: int):
             try:
                 dahua_if.set_focus_and_zoom()
             except Exception as ex:
-                logging.error("Could not set camera focus and zoom.\nException: {}".format(ex))
+                logging.error("Could not set camera focus and zoom.")
+                logging.exception(ex)
+
+                # Send to each email address specified in the Notifications settings page
+                if camera.notify_on_failed_interval_check:
+                    email.body = "⚠️ Failed to force focus and zoom camera.\n\n" \
+                                 "Label: {}\nUID: {}\nException: {}\n".format(camera.camera_label, camera.camera_id, ex)
+
+                    email.send()
 
             # Sleep
-            for second in range(camera.focus_zoom_interval_check * 60):
-                time.sleep(1)
+            time.sleep(camera.focus_zoom_interval_check)
         else:
             raise Exception("Unsupported camera manufacturer '{}' for camera ID# {}.".format(camera.manufacturer,
                                                                                              camera.camera_id))
 
 
-def send_alert(custom_alert_id: int):
+def send_alert(custom_alert_id: int, alpr_group_id: int):
     # Make the application context available here. This function is forked into a separate process and the database
     # connections needs to be reintroduced.
     app = create_app(app_config)
     app.app_context().push()
 
+    # Email
+    email = Email()
+    email.tag = Tag.ALERT.value
+
     try:
         custom_alert = CustomAlert.filter_by_id(custom_alert_id)
-        alpr_group = ALPRGroup.filter_by_id(custom_alert.alpr_group_id)
+        custom_alert_alpr_group = ALPRGroup.filter_by_id(custom_alert.alpr_group_id)
+        alpr_group = ALPRGroup.filter_by_id(alpr_group_id)
 
         if custom_alert:
-            if alpr_group:
-                report_settings = GeneralSettings.get_settings()
-                submitted_user = User.find_by_id(custom_alert.submitted_by_user_id)
-                submitted_user_profile = UserProfile.find_by_user_id(custom_alert.submitted_by_user_id)
+            email.subject = "{} Match!".format(custom_alert.license_plate)
 
-                email = Email()
-                email.tag = Tag.ALERT
-                email.subject = "{} Match! - OpenALPR-Webhook".format(custom_alert.license_plate)
-                # Add a publicly accessible URL
-                email.body = "🚨 Custom Alert: {}\n\n{}\n\nLocation/Agent: {}\n\nCamera: {}\n\nOrganization: {}\n\n" \
-                             "OpenALPR-Webhook".\
-                    format(custom_alert.license_plate, custom_alert.description,
-                           alpr_group.web_server_config['agent_label'],
-                           alpr_group.web_server_config['camera_label'], report_settings.org_name)
+            report_settings = GeneralSettings.get_settings()
+            submitted_user = User.find_by_id(custom_alert.submitted_by_user_id)
+            submitted_user_profile = UserProfile.find_by_user_id(custom_alert.submitted_by_user_id)
 
-                # Send email alert to receipt first
-                if helper.are_valid_email_recipients(submitted_user.email):
-                    email.recipients = submitted_user.email
-                    email.send()
+            # Add a publicly accessible URL
+            email.body = "🚨 Custom Alert: {}\n\n{}\nLocation/Agent: {}\nCamera: {}\nOrganization: {}\n".format(
+                custom_alert.license_plate, custom_alert.description, custom_alert_alpr_group.web_server_config['agent_label'],
+                custom_alert_alpr_group.web_server_config['camera_label'], report_settings.org_name)
 
-                sms = SMS()
-                sms.msg = "🚨 Custom Alert: {}\n\n{}\n\nLocation/Agent: {}\n\nCamera: {}\n\nOrganization: {}\n\n" \
-                          "OpenALPR-Webhook".format(custom_alert.license_plate, custom_alert.description,
-                                                    alpr_group.web_server_config['agent_label'],
-                                                    alpr_group.web_server_config['camera_label'],
-                                                    report_settings.org_name)
+            # Send email alert to submitter first
+            if helper.are_valid_email_recipients(submitted_user.email):
+                email.recipients = submitted_user.email
+                email.send()
 
-                # Send email alert to receipt first
-                if helper.are_valid_sms_recipients(submitted_user_profile.phone):
-                    sms.recipients = submitted_user_profile.phone
-                    sms.send()
+            sms = SMS()
+            sms.msg = "🚨 Custom Alert: {}\n\n{}\n\nLocation/Agent: {}\n\nCamera: {}\n\nOrganization: {}\n\n" \
+                      "OpenALPR-Webhook".format(custom_alert.license_plate, custom_alert.description,
+                                                custom_alert_alpr_group.web_server_config['agent_label'],
+                                                custom_alert_alpr_group.web_server_config['camera_label'],
+                                                report_settings.org_name)
 
-                # Send to additional recipients
-                if custom_alert.notify_user_ids is not None:
-                    for id in custom_alert.notify_user_ids:
-                        user = User.find_by_id(id)
-                        user_profile = UserProfile.find_by_user_id(id)
+            # Send sms alert to submitter first
+            if helper.are_valid_sms_recipients(submitted_user_profile.phone):
+                sms.recipients = submitted_user_profile.phone
+                sms.send()
+
+            # Send to additional recipients
+            if custom_alert.notify_user_ids is not None:
+                for _id in custom_alert.notify_user_ids:
+                    user = User.find_by_id(_id)
+                    user_profile = UserProfile.find_by_user_id(_id)
+                    if user is not None:
                         if helper.are_valid_email_recipients(user.email):
                             email.recipients = user.email
                             email.send()
+                    if user_profile is not None:
                         if helper.are_valid_sms_recipients(user_profile.phone):
                             sms.recipients = user_profile.phone
                             sms.send()
             else:
-                print("ALPR Group #{} was not found in the database.".format(custom_alert.alpr_group_id))
                 logging.exception("ALPR Group #{} was not found in the database.".format(custom_alert.alpr_group_id))
                 raise Exception("ALPR Group #{} was not found in the database.".format(custom_alert.alpr_group_id))
         else:
-            print("Custom alert #{} was not found in the database.".format(custom_alert_id))
             logging.exception("Custom alert #{} was not found in the database.".format(custom_alert_id))
             raise Exception("Custom alert #{} was not found in the database.".format(custom_alert_id))
 
     except Exception as ex:
-        print(ex)
         logging.exception(ex)

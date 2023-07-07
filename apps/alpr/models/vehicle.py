@@ -4,6 +4,9 @@ from flask_login import current_user
 
 from apps import db, helpers
 from sqlalchemy.ext.mutable import MutableDict
+
+from apps.alpr import beautify
+from apps.alpr.models.alpr_group import ALPRGroup
 from apps.exceptions.exception import InvalidUsage
 
 
@@ -70,7 +73,50 @@ class Vehicle(db.Model):
         return cls.query.filter_by(id=_id).first()
 
     @classmethod
-    def filter_epoch_start(self) -> "Vehicle":
+    def filter_by_id_and_beautify(cls, _id: int) -> {}:
+        record = cls.filter_by_id(_id)
+
+        if record:
+            dt = helpers.Timezone(current_user, msecs=True)
+            return {
+                'uuid_jpg': record.uuid_jpg,
+                'overview_jpeg': record.overview_jpeg,
+                'vehicle_crop_jpeg': record.vehicle_crop_jpeg,
+                'agent_label': ALPRGroup.get_latest_agent_label(record.agent_uid),
+                'agent_uid': record.agent_uid,
+                'agent_version': record.agent_version,
+                'agent_type': record.agent_type,
+                'camera_label': ALPRGroup.get_latest_camera_label(record.camera_id),
+                'camera_id': record.camera_id,
+                'gps_latitude': record.gps_latitude,
+                'gps_longitude': record.gps_longitude,
+                'country': beautify.name(record.country),
+                'id': record.id,
+                'epoch_start': record.epoch_start,
+                'epoch_start_datetime': dt.astimezone(record.epoch_start),
+                'epoch_end': record.epoch_end,
+                'epoch_end_datetime': dt.astimezone(record.epoch_end),
+                'is_vehicle_confidence_percent': round(float(record.vehicle['is_vehicle'][0]['confidence']), 0),
+                'travel_direction_class_tag': beautify.direction(record.travel_direction),
+                'travel_direction': round(float(record.travel_direction), 0),
+                'vehicle_color_name': record.vehicle_color_name,
+                'vehicle_color_confidence': record.vehicle_color_confidence,
+                'vehicle_year_name': record.vehicle_year_name,
+                'vehicle_year_confidence': record.vehicle_year_confidence,
+                'vehicle_make_name': record.vehicle_make_name,
+                'vehicle_make_confidence': record.vehicle_make_confidence,
+                'vehicle_make_model_name': record.vehicle_make_model_name,
+                'vehicle_make_model_confidence': record.vehicle_make_model_confidence,
+                'vehicle_body_type_name': record.vehicle_body_type_name,
+                'vehicle_body_type_confidence': record.vehicle_body_type_confidence,
+                'vehicle_signature': record.vehicle_signature
+            }
+
+        else:
+            return None
+
+    @classmethod
+    def filter_epoch_start(self) -> ["Vehicle"]:
         self.collection = self.query.filter((Vehicle.epoch_start / 1000) >= self.start_of_month_timestamp).filter(
             (Vehicle.epoch_start / 1000) <= self.end_of_month_timestamp).all()
         return self.collection
@@ -98,6 +144,5 @@ class Vehicle(db.Model):
         except Exception as e:
             db.session.rollback()
             db.session.close()
-            print(e)
             error = str(e.__dict__['orig'])
             raise InvalidUsage(error, 422)

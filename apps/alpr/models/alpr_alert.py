@@ -98,7 +98,7 @@ class ALPRAlert(db.Model):
         else:
             return None
 
-    def filter_epoch_time(self) -> "ALPRAlert":
+    def filter_epoch_time(self) -> ["ALPRAlert"]:
         self.collection = self.query.filter((ALPRAlert.epoch_time / 1000) >= self.start_of_month_timestamp).filter(
             (ALPRAlert.epoch_time / 1000) <= self.end_of_month_timestamp).all()
         return self.collection

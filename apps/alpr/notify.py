@@ -1,4 +1,5 @@
 import enum
+import logging
 import smtplib
 import ssl
 from email.mime.text import MIMEText
@@ -29,11 +30,11 @@ class Email:
         self._settings = EmailNotificationSettings.get_settings()
         self.recipients = self._settings.recipients
 
-    def send(self) -> None:
+    def send(self) -> bool:
 
         # Stop if Email is disabled
         if not self._settings.enabled:
-            return
+            return False
 
         try:
             # Split the string to create a list: user1@example.com,user2@example.com ->
@@ -47,15 +48,17 @@ class Email:
                     msg = MIMEText(self.body)
                     msg['To'] = recipient
                     msg['From'] = self._settings.username_email
-                    msg['Subject'] = "[{}] OpenALPR-Webhook: {}".format(self.tag, self.subject)
+                    msg['Subject'] = "[{}] {} - OpenALPR-Webhook".format(self.tag, self.subject)
                     server.login(self._settings.username_email, self._settings.password)
                     server.send_message(msg)
         except Exception as ex:
-            raise ex
+            logging.exception(ex)
+            return False
+        return True
 
     def send_test(self) -> None:
         try:
-            self.tag = Tag.TEST
+            self.tag = Tag.TEST.value
             self.subject = "SMTP Test"
             self.body = "This is a test 🧪 message from OpenALPR-Web🪝!"
             self.send()

@@ -1,8 +1,11 @@
-import os.path
+import logging
+import os
 import platform
 import subprocess
+import time
 from datetime import datetime
 
+import setproctitle
 from flask_ipban import IpBan
 from flask_migrate import Migrate
 from redis import Redis
@@ -13,15 +16,17 @@ from flask_sqlalchemy import SQLAlchemy, declarative_base
 from importlib import import_module
 from flask_mail import Mail
 
+import log
 import version
 from apps.alpr.ipban_config import IPBanConfig
-from apps.alpr.enums import WorkerType
+from worker_manager import WorkerManager
+from worker_manager_enums import WorkerType, WMSCommand
 
+setproctitle.setproctitle("OpenALPR-Webhook")
 mail = Mail()
 db = SQLAlchemy()
 migrate = Migrate()
 default_q = Queue(WorkerType.General.value, connection=Redis())
-camera_q = Queue(WorkerType.Camera.value, connection=Redis())
 Base = declarative_base()
 login_manager = LoginManager()
 ip_ban_config = IPBanConfig()
@@ -41,7 +46,7 @@ def register_blueprints(app):
                         'alpr.routes.settings.cameras', 'alpr.routes.settings.general',
                         'alpr.routes.settings.maintenance', 'alpr.routes.settings.maintenance.rq_dashboard',
                         'alpr.routes.settings.notifications', 'alpr.routes.settings.profile',
-                        'alpr.routes.settings.users', 'home'):
+                        'alpr.routes.settings.users', 'alpr.routes.vehicle', 'home'):
         module = import_module('apps.{}.routes'.format(module_name))
         app.register_blueprint(module.blueprint)
 
@@ -57,7 +62,7 @@ def configure_database(app):
         pass
 
     @app.before_first_request
-    def initialize_settings():
+    def initialize_cache():
         # Initiate cache when needed
         from apps.alpr.models.cache import Cache
         now = datetime.now()
@@ -69,6 +74,8 @@ def configure_database(app):
         Cache.filter_by_year(this_year)
         Cache.filter_by_year(next_year)
 
+    @app.before_first_request
+    def initialize_settings():
         # Create default settings when needed
         from apps.alpr.models.settings import GeneralSettings
         settings = GeneralSettings.get_settings()
@@ -77,23 +84,56 @@ def configure_database(app):
             settings = GeneralSettings()
             settings.save()
 
-        # Start redis workers on Linux only
-        if platform.system() == "Linux":
-            from apps.alpr.models.settings import CameraSettings
-            camera_workers = CameraSettings.get_all_enabled_count()
-            workers_cmd = subprocess.Popen(["python3", os.path.dirname(os.path.realpath(__file__)) +
-                                            "/workers.py", "-c", str(camera_workers), "-g", str(camera_workers)],
-                                           stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-            output, error = workers_cmd.communicate()
-            if workers_cmd.returncode != 0:
-                app.logger.info("workers_cmd.returncode = {}".format(workers_cmd.returncode))
-                app.logger.info("workers_cmd.errorcode = {}".format(str(error, 'utf-8')))
+    @app.before_first_request
+    def start_workers():
+        start_redis_workers()
 
-            app.logger.info("workers_cmd.stdout = {}".format(workers_cmd.stdout))
-            app.logger.info("workers_cmd.stderr = {}".format(workers_cmd.stderr))
+
+def start_redis_workers():
+    # Start redis workers on Linux only
+    if platform.system() == "Linuxx":
+        # Worker Manager Server
+        worker_manager_server = WorkerManager(WMSCommand.ACK)
+        worker_manager_server.debug = True
+        try:
+            subprocess.Popen(['python3', os.path.abspath(os.path.dirname(__file__) + "/..") +
+                              '/worker_manager_server.py'])
+            time.sleep(3)
+            worker_manager_server.send()
+        except Exception as ex:
+            logging.error(ex)
+
+        if worker_manager_server.last_connection():
+            # General workers to download UUID images from agents
+            from apps.alpr.models.settings import AgentSettings
+            enabled_agents = AgentSettings.get_all_enabled()
+            for agent in enabled_agents:
+                worker_manager_server.command = WMSCommand.START_WORKER
+                worker_manager_server.worker_type = WorkerType.General
+                worker_manager_server.worker_id = agent.agent_uid
+                worker_manager_server.send()
+            # Cameras
+            from apps.alpr.models.settings import CameraSettings
+            from apps.alpr import queue
+            enabled_cameras = CameraSettings.get_all_enabled()
+            try:
+                for camera in enabled_cameras:
+                    worker_manager_server.command = WMSCommand.START_WORKER
+                    worker_manager_server.worker_type = WorkerType.Camera
+                    worker_manager_server.worker_id = camera.camera_id
+                    worker_manager_server.send()
+                    time.sleep(1)
+                    # Add the function to the queue
+                    q = Queue(camera.camera_id, connection=Redis())
+                    q.enqueue(queue.focus_camera, args=(camera.camera_id,), job_timeout=-1)
+            except Exception as ex:
+                logging.exception(ex)
+        else:
+            logging.error("Last connection to Worker Manager Server failed. Could not spin up redis workers!")
 
 
 def create_app(config) -> Flask:
+    log.init("OpenALPR-Webhook.log")
     app = Flask(__name__)
     app.config.from_object(config)
     mail.init_app(app)

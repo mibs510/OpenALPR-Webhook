@@ -59,7 +59,7 @@
                         </div>
                         <div class="col-12 col-xxl-6 ps-xxl-4 pe-xl-0">
                             <h2 class="fs-6 fw-normal mb-1 text-gray-400">Alerts</h2>
-                            <h3 class="fw-extrabold mb-1">{{ quick_stats.this_month_alert_count }}</h3>
+                            <h3 class="fw-extrabold mb-1"><div data-bs-toggle="tooltip" data-bs-placement="right" title="Custom: {{ quick_stats.this_month_custom_alert_count }} - Rekor: {{ quick_stats.this_month_rekor_alert_count }}">{{ quick_stats.this_month_alert_count }}</div></h3>
                             <small class="d-flex align-items-center">
                                 <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
                                 {{ quick_stats.start_of_month_pretty }} - {{ quick_stats.end_of_month_pretty }}
@@ -82,13 +82,13 @@
                         </div>
                         <div class="col-12 col-sm-6 col-xl-12 col-xxl-6 ps-xxl-4 pe-xxl-0">
                             <h2 class="fs-6 fw-normal mb-1 text-gray-400">Top Second Region</h2>
-                            <h3 class="fw-extrabold mb-1"><div data-bs-toggle="tooltip" data-bs-placement="right" title="Current Count: {{ quick_stats.this_month_top_region_count }}">{{ quick_stats.this_month_top_region }}</div></h3>
+                            <h3 class="fw-extrabold mb-1"><div data-bs-toggle="tooltip" data-bs-placement="right" title="Current Count: {{ quick_stats.this_month_top_second_region_count }}">{{ quick_stats.this_month_top_second_region }}</div></h3>
                             <small class="d-flex align-items-center">
                                 <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
                                 {{ quick_stats.start_of_month_pretty }} - {{ quick_stats.end_of_month_pretty }}
                             </small>
                             <div class="small d-flex mt-1">
-                                <div>{{ quick_stats.this_month_top_region_mtm_svg_html_arrow }}<span class="{{ quick_stats.this_month_top_region_mtm_class }} fw-bolder">{{ quick_stats.this_month_top_region_mtm_percent }}%</span> Since last month</div>
+                                <div>{{ quick_stats.this_month_top_second_region_mtm_svg_html_arrow }}<span class="{{ quick_stats.this_month_top_second_region_mtm_class }} fw-bolder">{{ quick_stats.this_month_top_second_region_mtm_percent }}%</span> Since last month</div>
                             </div>
                         </div>
                     </div>
@@ -201,7 +201,7 @@
                                         <div class="calendar d-flex"><span class="calendar-month">{{ record.month }}</span><span class="calendar-day py-2">{{ record.day }}</span></div>
                                     </div>
                                     <div class="col">
-                                        <a href="{{ url_for('alert.custom_alert', id=record.id) }}"><h3 class="h5 mb-1">{{ record.plate_number }}</h3></a>
+                                        <a href="{{ url_for('capture.plate', id=record.id) }}"><h3 class="h5 mb-1">{{ record.plate_number }}</h3></a>
                                         <div class="small fw-bold"><b>Time: {{ record.epoch_time_datetime }}</b></div>
                                         <div class="small fw-bold"><b>Location: {{ record.site_name }}</b></div>
                                         <div class="small fw-bold"><b>Camera: {{ record.camera_name }}</b></div>
@@ -325,12 +325,6 @@
                         </div>
                     {% endfor %}
                     </div>
-                    <div class="card-footer bg-gray-50 border-top text-center">
-                        <a class="fw-bold d-flex align-items-center justify-content-center" href="../calendar.html">
-                            <svg class="icon icon-xs me-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path></svg>
-                            See all
-                        </a>
-                    </div>
                 </div>
             </div>
         </div>
@@ -443,10 +437,16 @@
         };
 
         var alertsChartOptions = {
-            series: [{
-                name: 'Count',
-                data: {{ alert_chart_series }}
-            }],
+            series: [
+                {
+                    name: 'Rekor™ Scout',
+                    data: {{ alert_chart_series }}
+                },
+                {
+                    name: 'Custom',
+                    data: {{ custom_alert_chart_series }}
+                },
+            ],
             labels: {{ plates_captured_alerts_chart_labels }},
             chart: {
                 type: 'area',
@@ -456,12 +456,21 @@
                     enabled: true
                 }
             },
-            theme: {
-                monochrome: {
-                    enabled: true,
-                    color: '#31316A',
-                }
+            colors: ['#31316A', '#00E396'],
+            dataLabels: {
+                enabled: false
             },
+            stroke: {
+                curve: 'smooth'
+            },
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    opacityFrom: 0.6,
+                    opacityTo: 0.8,
+                }
+                },
+
             tooltip: {
                 fillSeriesColor: false,
                 onDatasetHover: {

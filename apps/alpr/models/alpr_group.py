@@ -72,6 +72,10 @@ class ALPRGroup(db.Model):
         return cls.query.filter_by(id=_id).first()
 
     @classmethod
+    def filter_by_best_plate_number(cls, best_plate_number: str) -> "[ALPRGroup]":
+        return cls.query.filter_by(best_plate_number=best_plate_number).order_by(ALPRGroup.id.desc()).all()
+
+    @classmethod
     def filter_by_id_and_beautify(cls, _id: int) -> {}:
         record = cls.filter_by_id(_id)
 
@@ -96,7 +100,7 @@ class ALPRGroup(db.Model):
                 'epoch_start': record.epoch_start,
                 'epoch_start_datetime': dt.astimezone(record.epoch_start),
                 'epoch_end': record.epoch_end,
-                'epoch_end_datetime': dt.astimezone(record.epoch_start),
+                'epoch_end_datetime': dt.astimezone(record.epoch_end),
                 'best_confidence_percent': record.best_confidence_percent,
                 'best_region': beautify.country(record.best_region),
                 'travel_direction_class_tag': beautify.direction(record.travel_direction),
@@ -117,17 +121,17 @@ class ALPRGroup(db.Model):
             return None
 
     @classmethod
-    def get_latest_agent_label(cls, _agent_uid: int) -> str:
+    def get_latest_agent_label(cls, _agent_uid: str) -> str:
         record = cls.query.filter_by(agent_uid=_agent_uid).order_by(ALPRGroup.id.desc()).first()
         return record.web_server_config['agent_label']
 
     @classmethod
-    def get_latest_agent_type(cls, _agent_uid: int) -> str:
+    def get_latest_agent_type(cls, _agent_uid: str) -> str:
         record = cls.query.filter_by(agent_uid=_agent_uid).order_by(ALPRGroup.id.desc()).first()
         return record.agent_type
 
     @classmethod
-    def get_latest_agent_version(cls, _agent_uid: int) -> str:
+    def get_latest_agent_version(cls, _agent_uid: str) -> str:
         record = cls.query.filter_by(agent_uid=_agent_uid).order_by(ALPRGroup.id.desc()).first()
         return record.agent_version
 
@@ -150,6 +154,10 @@ class ALPRGroup(db.Model):
     def get_latest_camera_gps_longitude(cls, _camera_id: int) -> str:
         record = cls.query.filter_by(camera_id=_camera_id).order_by(ALPRGroup.id.desc()).first()
         return record.gps_longitude
+
+    @classmethod
+    def get_latest_by_best_plate_number(cls, best_plate_number: str, limit=2) -> "[ALPRGroup]":
+        return cls.query.filter_by(best_plate_number=best_plate_number).order_by(ALPRGroup.id.desc()).limit(limit)
 
     @classmethod
     def get_oldest_agent_epoch_start(cls, _agent_uid: int) -> int:

@@ -26,12 +26,38 @@
                     </nav>
                     <div class="d-flex justify-content-between w-100 flex-wrap">
                         <div class="mb-3 mb-lg-0">
-                            <h1 class="h4">License Plates</h1>
-                            <p class="mb-0">View all grouped license plate captures.</p>
+                            <h1 class="h4">License Plates & Vehicles</h1>
+                            <p class="mb-0">View all grouped license plate captures or vehicles.</p>
                         </div>
                     </div>
                 </div>
-                <div id="licensePlates"></div>
+                <!-- Tab Nav -->
+                <div class="nav-wrapper position-relative mb-2">
+                    <ul class="nav nav-pills nav-fill flex-column flex-md-row" id="tabs-text" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link mb-sm-3 mb-md-0 active" id="tabs-text-1-tab" data-bs-toggle="tab" href="#license-plates" role="tab" aria-controls="tabs-text-1" aria-selected="true">License Plates</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link mb-sm-3 mb-md-0" id="tabs-text-2-tab" data-bs-toggle="tab" href="#vehicles" role="tab" aria-controls="tabs-text-2" aria-selected="false">Vehicles</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- End of Tab Nav -->
+                <!-- Tab Content -->
+                <div class="border-0">
+                    <div class="p-0">
+                        <div class="tab-content" id="tabcontent">
+                            <div class="tab-pane fade show active" id="license-plates" role="tabpanel" aria-labelledby="tabs-text-1-tab">
+                                <div id="licensePlates"></div>
+                            </div>
+                            <div class="tab-pane fade" id="vehicles" role="tabpanel" aria-labelledby="tabs-text-2-tab">
+                                <div id="Vehicles"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- End of Tab Content -->
+
                 <!-- home/search.html -->
 {% endblock content %}
 
@@ -69,7 +95,53 @@
                         { id: 'time', name: 'Time', sort: false },
                     ],
                     server: {
-                    url: '{{ url_for('search.query') }}',
+                    url: '{{ url_for('search.query_group') }}',
+                    then: results => results.data,
+                    total: results => results.total,
+                    },
+                    search: {
+                        enabled: true,
+                        debounceTimeout: 1000,
+                        server: {
+                            url: (prev, search) => {
+                                return updateUrl(prev, {search});
+                            },
+                        },
+                    },
+                    pagination: {
+                        enabled: true,
+                        resetPageOnUpdate: true,
+                        server: {
+                            url: (prev, page, limit) => {
+                                return updateUrl(prev, {start: page * limit, length: limit});
+                            },
+                        }
+                    },
+                }).render(document.getElementById('licensePlates'));
+
+                new gridjs.Grid({
+                    columns: [
+                        { id: 'id', name:'ID', hidden: true, sort: false },
+                        { id: 'site', name: 'Site', sort: false },
+                        { id: 'camera', name: 'Camera', sort: false },
+                        { id: 'color', name: 'Color', sort: false },
+                        { id: 'ym', name: 'Year Make Model', sort: false,
+                            formatter: (cell, row) => {
+                                return gridjs.h('text-default', {
+                                    className: '',
+                                }, gridjs.html(`<a href="/vehicle/${row.cells[0].data}" >${cell}</a>`));
+                            }
+                        },
+                        { id: 'vehicle_crop_jpeg', name: 'Vehicle', sort: false, formatter: (cell) =>
+                            gridjs.html(`<img src="data:image/png;base64, ${cell}"></img>`)
+                        },
+                        { id: 'direction', name: 'Direction', sort: false, formatter: (cell) =>
+                            gridjs.html(`<gg-icon class='gg-arrow-${cell}'></gg-icon>`)
+                        },
+                        { id: 'time', name: 'Time', sort: false },
+                    ],
+                    server: {
+                    url: '{{ url_for('search.query_vehicle') }}',
                     then: results => results.data,
                     total: results => results.total,
                     },
@@ -91,7 +163,7 @@
                             },
                         },
                     },
-                }).render(document.getElementById('licensePlates'));
+                }).render(document.getElementById('Vehicles'));
             </script>
             <!-- home/search.html -->
 {% endblock javascripts %}

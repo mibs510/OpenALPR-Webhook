@@ -1,12 +1,18 @@
 import logging
+import time
+
 from flask import render_template, request, jsonify
 from flask_login import current_user, login_required
+from rq import Queue
+
+import worker_manager
 from apps import db
 from apps.alpr.models.settings import AgentSettings
 from apps.alpr.routes.settings.agents import blueprint
 from apps.authentication.routes import ROLE_ADMIN
 import apps.helpers as helper
 from apps.helpers import message
+from worker_manager_enums import WorkerType, WMSCommand
 
 
 @blueprint.route('/search', methods=["GET"])
@@ -98,6 +104,7 @@ def edit():
         agent = AgentSettings.filter_by_id(data.get('id'))
 
         if agent:
+            previously_enabled = agent.enabled
             try:
                 # Update it!
                 agent.ip_hostname = ip_hostname
@@ -107,7 +114,22 @@ def edit():
 
                 # Reload workers and queues. Someone may have enabled an agent which will require a worker and queue
                 # dedicated to that agent
-                # reload_wqs()
+
+                try:
+                    if previously_enabled != enabled:
+                        if enabled:
+                            wms = worker_manager.WorkerManager(WMSCommand.START_WORKER)
+                            wms.worker_id = agent.agent_uid
+                            wms.worker_type = WorkerType.General
+                            wms.debug = True
+                            wms.send()
+                        else:
+                            wms = worker_manager.WorkerManager(WMSCommand.STOP_WORKER)
+                            wms.worker_id = agent.agent_uid
+                            wms.debug = True
+                            wms.send()
+                except Exception as ex:
+                    logging.exception(ex)
 
             except Exception as ex:
                 logging.exception(ex)

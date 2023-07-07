@@ -1,5 +1,7 @@
 import datetime
+import logging
 import os
+import subprocess
 import uuid
 import re
 
@@ -17,6 +19,30 @@ import phonenumbers
 message = Messages.message
 
 
+def netstat() -> float:
+    try:
+        netstat = subprocess.Popen(['netstat', '-aon'], stdout=subprocess.PIPE)
+        grep_3565 = subprocess.Popen(['grep', '3565'], stdin=netstat.stdout, stdout=subprocess.PIPE)
+        grep_time_wait = subprocess.Popen(['grep', 'TIME_WAIT'], stdin=grep_3565.stdout, stdout=subprocess.PIPE)
+        tail_n_1 = subprocess.Popen(['tail', '-n1'], stdin=grep_time_wait.stdout, stdout=subprocess.PIPE)
+        awk = subprocess.Popen(['awk', '{print $8}'], stdin=tail_n_1.stdout, stdout=subprocess.PIPE)
+
+        stdout, stderr = awk.communicate()
+        stdout = stdout.decode('utf-8')
+        logging.debug("stdout = {}".format(stdout))
+
+        if awk.returncode == 0:
+            if stdout != "":
+                stdout = stdout.split('/')
+                seconds = stdout[0].strip('(')
+                logging.debug("seconds = {}".format(seconds))
+                return float(seconds)
+            return 0.00
+        return 0.00
+    except Exception:
+        return 0.00
+
+
 def setChoices(current_user, user_ids: []) -> []:
     users = User.query
     choices = []
@@ -27,9 +53,13 @@ def setChoices(current_user, user_ids: []) -> []:
             if user_ids is not None:
                 if str(user.id) in user_ids:
                     selected = True
+            if user_profile.full_name != "":
+                label = user_profile.full_name + " (" + user.email + ")"
+            else:
+                label = user.username + " (" + user.email + ")"
             choices.append({
                 'value': user.id,
-                'label': user_profile.full_name + " (" + user.email + ")",
+                'label': label,
                 'selected': selected
             })
     return choices
@@ -176,8 +206,7 @@ def emailValidate(email):
         return False
 
 
-def createFolder(folder_name):
-    """ create folder for save csv """
+def mkdir(folder_name):
     if not os.path.exists(f'{folder_name}'):
         os.makedirs(f'{folder_name}')
 

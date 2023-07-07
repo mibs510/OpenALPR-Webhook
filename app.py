@@ -27,11 +27,12 @@ if not DEBUG:
 
 
 if DEBUG:
-    app.logger.info('DEBUG            = ' + str(DEBUG))
-    app.logger.info('Page Compression = ' + 'FALSE' if DEBUG else 'TRUE')
-    app.logger.info('DBMS             = ' + app_config.SQLALCHEMY_DATABASE_URI)
+    app.logger.info("DEBUG = {}".format(str(DEBUG)))
+    app.logger.info("Page Compression = {}".format('FALSE' if DEBUG else 'TRUE'))
+    app.logger.info("DBMS = {}".format(app_config.SQLALCHEMY_DATABASE_URI))
 
 
 if __name__ == "__main__":
     with app.app_context():
+        # app.run(host="0.0.0.0", port=8080, debug=True, passthrough_errors=True, use_debugger=False, use_reloader=False)
         app.run(host="0.0.0.0", port=8080)

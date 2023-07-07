@@ -51,8 +51,12 @@ class AgentSettings(db.Model):
         return cls.query.filter_by(id=id).first()
 
     @classmethod
-    def get_all(cls, _agent_uid: str) -> "AgentSettings":
+    def get_all(cls, _agent_uid: str) -> ["AgentSettings"]:
         return cls.query.all()
+
+    @classmethod
+    def get_all_enabled(cls) -> ["AgentSettings"]:
+        return cls.query.filter_by(enabled=True)
 
     def save(self) -> None:
         try:
@@ -98,12 +102,8 @@ class CameraSettings(db.Model):
         return cls.query.filter_by(id=_id).first()
 
     @classmethod
-    def get_all_enabled(cls) -> []:
+    def get_all_enabled(cls) -> ["CameraSettings"]:
         return cls.query.filter_by(enable=True)
-
-    @classmethod
-    def get_all_enabled_count(cls) -> int:
-        return cls.query.filter_by(enable=True).count()
 
     @classmethod
     def get_camera_label(cls, _camera_id: int) -> "CameraSettings":
@@ -142,7 +142,7 @@ class EmailNotificationSettings(db.Model):
     recipients = db.Column(db.String)
 
     @classmethod
-    def get_recipients(cls) -> []:
+    def get_recipients(cls) -> [str]:
         settings = cls.query.filter_by(id=id).first()
         recipients = settings.recipients
 
@@ -176,7 +176,7 @@ class GeneralSettings(db.Model):
     logo = db.Column(db.String, default=default_org_logo)
     org_name = db.Column(db.String, default="OpenALPR-Webhook")
     post_auth = db.Column(db.Enum(PostAuth), default=PostAuth.ADMINS_ONLY)
-    public_url = db.Column(db.String)
+    public_url = db.Column(db.String, default="https://openalpr-webhook")
 
     @classmethod
     def get_settings(cls) -> "GeneralSettings":

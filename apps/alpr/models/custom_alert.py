@@ -1,4 +1,4 @@
-from datetime import datetime
+import logging
 
 from flask_login import current_user
 
@@ -95,24 +95,37 @@ class CustomAlert(db.Model):
     def filter_by_submitted_user_id(cls, _submitted_by_user_id: int) -> ["CustomAlert"]:
         return cls.query.filter_by(submitted_by_user_id=_submitted_by_user_id).all()
 
-    def get_dashboard_records(self, current_user, n=3) -> []:
-        custom_alerts = self.query.filter_by(submitted_by_user_id=current_user.id).order_by(CustomAlert.id.desc()).limit(n)
+    def get_dashboard_records(self, n=3) -> []:
+        custom_alerts = \
+            self.query.filter_by(submitted_by_user_id=current_user.id).order_by(CustomAlert.id.desc()).limit(n)
         data = []
         dt = helper.Timezone(current_user)
 
-        for record in custom_alerts:
-            alpr_group = ALPRGroup.filter_by_id(record.alpr_group_id)
-            data.append({
-                'id': record.id,
-                'month': dt.month(alpr_group.epoch_start),
-                'day': dt.day(alpr_group.epoch_start),
-                'plate_number': record.license_plate,
-                'epoch_time_datetime': dt.astimezone(alpr_group.epoch_start),
-                'site_name': alpr_group.web_server_config['agent_label'],
-                'camera_name': alpr_group.web_server_config['camera_label'],
-                'description': helper.shorten_description(record.description)
-            })
+        for alert in custom_alerts:
+            alpr_group = ALPRGroup.get_latest_by_best_plate_number(alert.license_plate)
+            for record in alpr_group:
+                data.append({
+                    'id': record.id,
+                    'month': dt.month(record.epoch_start),
+                    'day': dt.day(record.epoch_start),
+                    'plate_number': record.best_plate_number,
+                    'epoch_time_datetime': dt.astimezone(record.epoch_start),
+                    'site_name': record.web_server_config['agent_label'],
+                    'camera_name': record.web_server_config['camera_label'],
+                    'description': helper.shorten_description(alert.description)
+                })
         return data
+
+    def delete(self) -> None:
+        try:
+            db.session.delete(self)
+            db.session.commit()
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            db.session.close()
+            error = str(e.__dict__['orig'])
+            raise InvalidUsage(error, 422)
+        return
 
     def save(self) -> None:
         try:

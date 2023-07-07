@@ -113,9 +113,9 @@ def edit_report_settings():
                     logging.exception(ex)
                     return jsonify({'error': message['error_updating_brand_logo']}), 500
 
-                # Organization name
-                settings.org_name = data.get('org_name')
-                settings.save()
+            # Organization name
+            settings.org_name = data.get('org_name')
+            settings.save()
 
             return jsonify({'message': message['report_settings_saved']}), 200
         else:

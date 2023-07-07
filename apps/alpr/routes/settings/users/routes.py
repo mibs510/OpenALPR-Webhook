@@ -6,7 +6,7 @@ from password_generator import PasswordGenerator
 
 from apps import db, helpers
 from apps.alpr.models.settings import EmailNotificationSettings
-from apps.alpr.notify import Email
+from apps.alpr.notify import Email, Tag
 from apps.alpr.routes.settings.users import blueprint
 from apps.authentication.models import User, UserProfile
 from apps.authentication.routes import STATUS_ACTIVE, STATUS_SUSPENDED, ROLE_ADMIN, ROLE_USER
@@ -23,7 +23,7 @@ def check_smtp():
     settings = EmailNotificationSettings.get_settings()
 
     if settings is None:
-        return jsonify({'error': 'Settings have not been initialized'}), 404
+        return jsonify({'error': 'Empty SMTP settings. Valid SMTP settings required to reset user passwords.'}), 404
 
     # Validate SMTP settings
     is_valid_hostname = helpers.is_valid_hostname(settings.hostname)
@@ -106,6 +106,12 @@ def edit():
                     profile.address = data.get('address')
                     profile.zipcode = data.get('zipcode')
                     profile.phone = data.get('phone')
+
+                    # Check phone number validity
+                    if data.get('phone') != "":
+                        if not helpers.are_valid_sms_recipients(profile.phone):
+                            return jsonify({'error': message['invalid_phone_number']}), 404
+
                     profile.email = data.get('email')
                     profile.website = data.get('website')
 
@@ -123,6 +129,12 @@ def edit():
                 profile.address = data.get('address')
                 profile.zipcode = data.get('zipcode')
                 profile.phone = data.get('phone')
+
+                # Check phone number validity
+                if data.get('phone') != "":
+                    if not helpers.are_valid_sms_recipients(profile.phone):
+                        return jsonify({'error': message['invalid_phone_number']}), 404
+
                 profile.website = data.get('website')
 
                 profile.save()
@@ -200,14 +212,14 @@ def reset_password():
         password = pg.generate()
         user.password = hash_pass(password)
         email = Email()
-        email.tag = "Account"
-        email.subject = "Account Password Reset"
+        email.tag = Tag.ACCOUNT.value
+        email.subject = "Password Reset"
         email.body = "Hello {},\nYour password has been reset.\nYour new password is: {}".format(user.username,
                                                                                                  password)
         email.recipients = [user.email]
-        email.send()
         # Don't save the new user password unless an email was sent without an exception
-        user.save()
+        if email.send():
+            user.save()
     except Exception as ex:
         logging.exception(ex)
         return jsonify({'error': 'Something went wrong! Please make sure email SMTP settings are correct.'}), 404

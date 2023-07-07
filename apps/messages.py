@@ -73,6 +73,7 @@ class Messages:
         'general_settings_saved': 'General settings saved!',
         'general_settings_not_saved': 'Could not save general settings!',
         'custom_alert_added_successfully': 'Custom alert added successfully',
+        'custom_alert_not_found': 'Custom alert not found',
         'custom_alert_updated_successfully': 'Custom alert updated successfully',
         'duplicate_custom_alert': 'A custom alert with this license plate number already exists for you.',
         'illegal_access': "Illegal access",

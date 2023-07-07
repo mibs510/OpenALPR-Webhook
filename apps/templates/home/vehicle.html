@@ -1,16 +1,16 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Capture {{ license_plate['id'] }} License Plate {{ license_plate['best_plate_number'] }} {% endblock %}
+{% block title %} {{ vehicle['vehicle_year_name'] }} {{ vehicle['vehicle_make_model_name'] }} {% endblock %}
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
-    <!-- home/capture.html -->
+    <!-- home/vehicle.html -->
     <link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
-    <!-- home/capture.html -->
+    <!-- home/vehicle.html -->
 {% endblock stylesheets %}
 
 {% block content %}
-                <!-- home/capture.html -->
+                <!-- home/vehicle.html -->
                 <div class="py-4">
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
@@ -22,13 +22,13 @@
                               </a>
                           </li>
                           <li class="breadcrumb-item"><a href="#">Search</a></li>
-                            <li class="breadcrumb-item"><a href="#">License Plate</a></li>
-                          <li class="breadcrumb-item active" aria-current="page">{{ license_plate['best_plate_number'] }}</li>
+                            <li class="breadcrumb-item"><a href="#">Vehicle</a></li>
+                          <li class="breadcrumb-item active" aria-current="page">{{ vehicle['vehicle_year_name'] }} {{ vehicle['vehicle_make_model_name'] }}</li>
                       </ol>
                     </nav>
                     <div class="d-flex justify-content-between w-100 flex-wrap">
                         <div class="mb-3 mb-lg-0">
-                            <h1 class="h4">License Plate Report</h1>
+                            <h1 class="h4">Vehicle Report</h1>
                             <p class="mb-0"></p>
                         </div>
                         <div>
@@ -49,26 +49,23 @@
                     <div class="col-12 col-xl-9">
                         <div class="card shadow border-0 p-4 p-md-5 position-relative">
                             <div class="mb-6 d-flex align-items-center justify-content-center">
-                                {% if license_plate['uuid_jpg'] %}
-                                    <img src="data:image/jpeg;base64,{{ license_plate['uuid_jpg'] }}" class="card-img-top" alt="{{ license_plate['best_plate_number'] }}">
-                                {% elif license_plate['overview_jpeg'] %}
-                                    <img src="data:image/jpeg;base64,{{ license_plate['overview_jpeg'] }}" class="img-fluid" alt="{{ license_plate['best_plate_number'] }}">
+                                {% if vehicle['uuid_jpg'] %}
+                                    <img src="data:image/jpeg;base64,{{ vehicle['uuid_jpg'] }}" class="card-img-top" alt="{{ vehicle['vehicle_year_name'] }} {{ vehicle['vehicle_make_model_name'] }}">
+                                {% elif vehicle['overview_jpeg'] %}
+                                    <img src="data:image/jpeg;base64,{{ vehicle['overview_jpeg'] }}" class="img-fluid" alt="{{ vehicle['vehicle_year_name'] }} {{ vehicle['vehicle_make_model_name'] }}">
                                 {% endif %}
                             </div>
                             <div class="row pb-md-4 mb-4 mb-md-5">
                                 <div class="col-6">
-                                    {% if license_plate['vehicle_crop_jpeg']  %}
-                                        <img src="data:image/jpeg;base64,{{ license_plate['vehicle_crop_jpeg'] }}" class="img-thumbnail img-fluid" alt="{{ license_plate['best_plate_number'] }}">
-                                    {% endif %}
-                                    {% if license_plate['plate_crop_jpeg'] %}
-                                        <img src="data:image/jpeg;base64,{{ license_plate['plate_crop_jpeg'] }}" class="img-thumbnail img-fluid" alt="{{ license_plate['best_plate_number'] }}">
+                                    {% if vehicle['vehicle_crop_jpeg']  %}
+                                        <img src="data:image/jpeg;base64,{{ vehicle['vehicle_crop_jpeg'] }}" class="img-thumbnail img-fluid" alt="{{ vehicle['vehicle_year_name'] }} {{ vehicle['vehicle_make_model_name'] }}">
                                     {% endif %}
                                 </div>
                                 <div class="col-6">
                                     <div class="d-flex flex-column">
                                         <div class="p-2">
                                             <h1 class="display-1">
-                                                {{ license_plate['best_plate_number'] }}
+                                                {{ vehicle['vehicle_year_name'] }} {{ vehicle['vehicle_make_model_name'] }}
                                             </h1>
                                         </div>
                                     </div>
@@ -79,22 +76,22 @@
                                     <h5>Agent Information</h5>
                                     <dl class="row text-sm-right">
                                         <dt class="col-3"><strong>Label:</strong></dt>
-                                        <dd class="col-9">{% if cached_agent %}{{ cached_agent.agent_label }}{% else %}{{ license_plate['agent_label'] }}{% endif %}</dd>
+                                        <dd class="col-9">{% if cached_agent %}{{ cached_agent.agent_label }}{% else %}{{ vehicle['agent_label'] }}{% endif %}</dd>
                                         <dt class="col-3"><strong>UID:</strong></dt>
-                                        <dd class="col-9">{{ license_plate['agent_uid'] }}</dd>
+                                        <dd class="col-9">{{ vehicle['agent_uid'] }}</dd>
                                         <dt class="col-3"><strong>Version:</strong></dt>
-                                        <dd class="col-9">{{ license_plate['agent_version'] }}</dd>
+                                        <dd class="col-9">{{ vehicle['agent_version'] }}</dd>
                                         <dt class="col-3"><strong>Type:</strong></dt>
-                                        <dd class="col-9">{{ license_plate['agent_type'] }}</dd>
+                                        <dd class="col-9">{{ vehicle['agent_type'] }}</dd>
                                     </dl>
                                 </div>
                                 <div class="col-6">
                                     <h5>Camera Information</h5>
                                     <dl class="row text-sm-right">
                                         <dt class="col-6"><strong>Label:</strong></dt>
-                                        <dd class="col-6">{% if cached_camera %}{{ cached_camera.camera_label }}{% else %}{{ license_plate['camera_label'] }}{% endif %}</dd>
+                                        <dd class="col-6">{% if cached_camera %}{{ cached_camera.camera_label }}{% else %}{{ vehicle['camera_label'] }}{% endif %}</dd>
                                         <dt class="col-6"><strong>ID:</strong></dt>
-                                        <dd class="col-6">{% if cached_camera %}{{ cached_camera.camera_id }}{% else %}{{ license_plate['camera_id'] }}{% endif %}</dd>
+                                        <dd class="col-6">{% if cached_camera %}{{ cached_camera.camera_id }}{% else %}{{ vehicle['camera_id'] }}{% endif %}</dd>
                                         <dt class="col-6"><strong>GPS Latitude:</strong></dt>
                                         <dd class="col-6">
                                             {% if cached_camera %}
@@ -104,10 +101,10 @@
                                                     {{ cached_camera['gps_latitude'] }}
                                                 {% endif %}
                                             {% else %}
-                                                {% if license_plate['gps_latitude'] != -1 and license_plate['gps_longitude'] != -1 %}
-                                                        <a target="_blank" href="http://maps.google.com/maps?z=6&t=m&q=loc:{{ license_plate['gps_latitude'] }}+{{ license_plate['gps_longitude'] }}">{{ license_plate['gps_latitude'] }}</a>
+                                                {% if vehicle['gps_latitude'] != -1 and vehicle['gps_longitude'] != -1 %}
+                                                        <a target="_blank" href="http://maps.google.com/maps?z=6&t=m&q=loc:{{ vehicle['gps_latitude'] }}+{{ vehicle['gps_longitude'] }}">{{ vehicle['gps_latitude'] }}</a>
                                                 {% else %}
-                                                    {{ license_plate['gps_latitude'] }}
+                                                    {{ vehicle['gps_latitude'] }}
                                                 {% endif %}
                                             {% endif %}
                                         </dd>
@@ -120,15 +117,15 @@
                                                     {{ cached_camera.gps_longitude }}
                                                 {% endif %}
                                             {% else %}
-                                                {% if license_plate['gps_longitude'] != -1 and license_plate['gps_latitude'] != -1 %}
-                                                    <a target="_blank" href="http://maps.google.com/maps?z=6&t=m&q=loc:{{ license_plate['gps_latitude'] }}+{{ license_plate['gps_longitude'] }}">{{ license_plate['gps_longitude'] }}</a>
+                                                {% if vehicle['gps_longitude'] != -1 and vehicle['gps_latitude'] != -1 %}
+                                                    <a target="_blank" href="http://maps.google.com/maps?z=6&t=m&q=loc:{{ vehicle['gps_latitude'] }}+{{ vehicle['gps_longitude'] }}">{{ vehicle['gps_longitude'] }}</a>
                                                 {% else %}
-                                                    {{ license_plate['gps_longitude'] }}
+                                                    {{ vehicle['gps_longitude'] }}
                                                 {% endif %}
                                             {% endif %}
                                         </dd>
                                         <dt class="col-6"><strong>Country:</strong></dt>
-                                        <dd class="col-6">{% if cached_camera %}{{ cached_camera.country }}{% else %}{{ license_plate['country'] }}{% endif %}</dd>
+                                        <dd class="col-6">{% if cached_camera %}{{ cached_camera.country }}{% else %}{{ vehicle['country'] }}{% endif %}</dd>
                                     </dl>
                                 </div>
                             </div>
@@ -137,21 +134,19 @@
                                     <h5>Capture Information</h5>
                                     <dl class="row text-sm-right">
                                         <dt class="col-4"><strong>Capture No.:</strong></dt>
-                                        <dd class="col-8">{{ license_plate['id'] }}</dd>
+                                        <dd class="col-8">{{ vehicle['id'] }}</dd>
                                         <dt class="col-4"><strong>Start Timestamp:</strong></dt>
-                                        <dd class="col-8">{{ license_plate['epoch_start_datetime'] }}</dd>
+                                        <dd class="col-8">{{ vehicle['epoch_start_datetime'] }}</dd>
                                         <dt class="col-4"><strong>End Timestamp:</strong></dt>
-                                        <dd class="col-8">{{ license_plate['epoch_end_datetime'] }}</dd>
+                                        <dd class="col-8">{{ vehicle['epoch_end_datetime'] }}</dd>
                                         <dt class="col-4"><strong>Epoch Start:</strong></dt>
-                                        <dd class="col-8">{{ license_plate['epoch_start'] }}</dd>
+                                        <dd class="col-8">{{ vehicle['epoch_start'] }}</dd>
                                         <dt class="col-4"><strong>Epoch End:</strong></dt>
-                                        <dd class="col-8">{{ license_plate['epoch_end'] }}</dd>
-                                        <dt class="col-4"><strong>Confidence:</strong></dt>
-                                        <dd class="col-8">{{ license_plate['best_confidence_percent'] }}</dd>
-                                        <dt class="col-4"><strong>Region:</strong></dt>
-                                        <dd class="col-8">{{ license_plate['best_region'] }}</dd>
+                                        <dd class="col-8">{{ vehicle['epoch_end'] }}</dd>
+                                        <dt class="col-4"><strong>Vehicle Confidence:</strong></dt>
+                                        <dd class="col-8">{{ vehicle['is_vehicle_confidence_percent'] }}</dd>
                                         <dt class="col-4"><strong>Travel Direction:</strong></dt>
-                                        <dd class="col-8"><gg-icon class='gg-arrow-{{ license_plate['travel_direction_class_tag'] }}'></gg-icon>({{ license_plate['travel_direction'] }}°)</dd>
+                                        <dd class="col-8"><gg-icon class='gg-arrow-{{ vehicle['travel_direction_class_tag'] }}'></gg-icon>({{ vehicle['travel_direction'] }}°)</dd>
                                     </dl>
                                 </div>
                                 <div class="col-6">
@@ -166,15 +161,15 @@
                                     </h5>
                                     <dl class="row text-sm-right">
                                         <dt class="col-3"><strong>Color:</strong></dt>
-                                        <dd class="col-9">{{ license_plate['vehicle_color_name'] }} ({{ license_plate['vehicle_color_confidence'] }})</dd>
+                                        <dd class="col-9">{{ vehicle['vehicle_color_name'] }} ({{ vehicle['vehicle_color_confidence'] }})</dd>
                                         <dt class="col-3"><strong>Year:</strong></dt>
-                                        <dd class="col-9">{{ license_plate['vehicle_year_name'] }} ({{ license_plate['vehicle_year_confidence'] }})</dd>
+                                        <dd class="col-9">{{ vehicle['vehicle_year_name'] }} ({{ vehicle['vehicle_year_confidence'] }})</dd>
                                         <dt class="col-3"><strong>Make:</strong></dt>
-                                        <dd class="col-9">{{ license_plate['vehicle_make_name'] }} ({{ license_plate['vehicle_make_confidence'] }})</dd>
+                                        <dd class="col-9">{{ vehicle['vehicle_make_name'] }} ({{ vehicle['vehicle_make_confidence'] }})</dd>
                                         <dt class="col-3"><strong>Model:</strong></dt>
-                                        <dd class="col-9">{{ license_plate['vehicle_make_model_name'] }} ({{ license_plate['vehicle_make_model_confidence'] }})</dd>
+                                        <dd class="col-9">{{ vehicle['vehicle_make_model_name'] }} ({{ vehicle['vehicle_make_model_confidence'] }})</dd>
                                         <dt class="col-3"><strong>Body Type:</strong></dt>
-                                        <dd class="col-9">{{ license_plate['vehicle_body_type_name'] }} ({{ license_plate['vehicle_body_type_confidence'] }})</dd>
+                                        <dd class="col-9">{{ vehicle['vehicle_body_type_name'] }} ({{ vehicle['vehicle_body_type_confidence'] }})</dd>
                                     </dl>
                                 </div>
 
@@ -182,7 +177,7 @@
                             <div class="row d-flex justify-content-center mb-4 mb-md-5">
                                 <div class="col-sm-12">
                                     <label><h5>Past History</h5></label>
-                                    <div id="licensePlates"></div>
+                                    <div id="Vehicles"></div>
                                 </div>
                             </div>
                             <div class="card-footer text-muted">
@@ -191,75 +186,16 @@
                         </div>
                     </div>
                 </div>
-                <!-- Modal -->
-                <div id="addAlertModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addAlertModal" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered" role="document">
-                        <form method="PUT" id="addAlertForm"  enctype=multipart/form-data>
-                            <input type="hidden" id="alpr_group_id" name="alpr_group_id" value="{{ license_plate['id'] }}">
-                            <input type="hidden" id="license_plate" name="license_plate" value="{{ license_plate['best_plate_number'] }}">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="alertModal">Add Custom Alert</h5>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="row mt-2">
-                                        <div class="col-sm-6">
-                                            <label class="form-label">License Plate</label>
-                                            <input type="text" id="license_plate" name="license_plate" class="form-control" value="{{ license_plate['best_plate_number'] }}" disabled>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <label class="form-label">Region Match</label>
-                                             <span class="sidebar-icon">
-                                                    <a data-toggle="tooltip" title="A region match is required to qualify as an alert.">
-                                                        <svg class="icon icon-xxs text-gray-400 me-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                                            <path clip-rule="evenodd" fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path>
-                                                        </svg>
-                                                    </a>
-                                                </span>
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" id="region_match" name="region_match">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% if current_user.role == 1 %}
-                                    <div class="row mt-2">
-                                        <div class="col-sm-12">
-                                            <label for="users">Notify</label>
-                                            <select class="w-100 mb-0" id="users" name="users[]" multiple="multiple">
-                                                {% for user in users %}
-                                                    {% if user['username'] != current_user.username %}
-                                                    <option value="{{ user['id'] }}">{{ user['full_name'] }} ({{ user['email'] }})</option>
-                                                    {% endif %}
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    {% endif %}
-                                    <div class="row mt-2">
-                                        <div class="col-sm-12">
-                                            <label for="description">Description</label>
-                                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                    <button type="submit" class="btn btn-primary">Add</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                <!-- home/capture.html -->
+                <!-- home/vehicle.html -->
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
-            <!-- home/capture.html -->
+            <!-- home/vehicle.html -->
                 <script src="https://cdn.jsdelivr.net/npm/gridjs@6.0.6/dist/gridjs.production.min.js"></script>
                 <script>
                     function print(){
-                        myWindow=window.open("{{ url_for('capture.print_plate', id=license_plate.id) }}");
+                        myWindow=window.open("{{ url_for('vehicle.vehicle_print', id=vehicle.id) }}");
                         myWindow.focus();
                         myWindow.print();
                     }
@@ -307,26 +243,35 @@
                         { id: 'id', name:'ID', hidden: true, sort: false },
                         { id: 'site', name: 'Site', sort: false },
                         { id: 'camera', name: 'Camera', sort: false },
-                        { id: 'plate_number', name: 'Plate Number', sort: false,
+                        { id: 'color', name: 'Color', sort: false },
+                        { id: 'ym', name: 'Year Make Model', sort: false,
                             formatter: (cell, row) => {
                                 return gridjs.h('text-default', {
                                     className: '',
-                                }, gridjs.html(`<a href="/capture/${row.cells[0].data}" >${cell}</a>`));
+                                }, gridjs.html(`<a href="/vehicle/${row.cells[0].data}" >${cell}</a>`));
                             }
                         },
-                        { id: 'plate_crop_jpeg', name: 'Plate', sort: false, formatter: (cell) =>
+                        { id: 'vehicle_crop_jpeg', name: 'Vehicle', sort: false, formatter: (cell) =>
                             gridjs.html(`<img src="data:image/png;base64, ${cell}"></img>`)
                         },
                         { id: 'direction', name: 'Direction', sort: false, formatter: (cell) =>
                             gridjs.html(`<gg-icon class='gg-arrow-${cell}'></gg-icon>`)
                         },
-                        { id: 'confidence', name: 'Confidence', sort: false },
                         { id: 'time', name: 'Time', sort: false },
                     ],
                     server: {
-                    url: '{{ url_for('search.query_plate', plate=license_plate['best_plate_number']) }}',
+                    url: '{{ url_for('search.query_vehicle_signature', signature=vehicle['vehicle_signature']) }}',
                     then: results => results.data,
                     total: results => results.total,
+                    },
+                    search: {
+                        enabled: true,
+                        debounceTimeout: 1000,
+                        server: {
+                            url: (prev, search) => {
+                                return updateUrl(prev, {search});
+                            },
+                        },
                     },
                     pagination: {
                         enabled: true,
@@ -337,7 +282,7 @@
                             },
                         },
                     },
-                }).render(document.getElementById('licensePlates'));
+                }).render(document.getElementById('Vehicles'));
                 </script>
-            <!-- home/capture.html -->
+            <!-- home/vehicle.html -->
 {% endblock javascripts %}

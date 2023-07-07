@@ -1,10 +1,10 @@
 import logging
 
-from flask import request, jsonify
+from flask import request, jsonify, render_template
 from flask_login import current_user, login_required
 import apps.helpers as helper
 
-from apps import db
+from apps import db, helpers
 from apps.alpr.models.alpr_group import ALPRGroup
 from apps.alpr.models.custom_alert import CustomAlert
 from apps.alpr.routes.alerts.custom import blueprint
@@ -22,7 +22,8 @@ def add():
     region_match = bool(data.get('region_match'))
     description = data.get('description')
     username = current_user.username
-    notify_user_ids = str(data.get('notify_user_ids')).split(',')
+    notify_user_ids = [] if data.get('notify_user_ids') == 'null' else str(data.get('notify_user_ids')).split(',')
+
 
     user = User.find_by_username(username)
 
@@ -48,23 +49,49 @@ def add():
         return jsonify({'error': message['duplicate_custom_alert']}), 404
 
 
+@blueprint.route('/delete/<int:id>', methods=["PUT"])
+@login_required
+def delete(id):
+
+    alert_record = CustomAlert.filter_by_id(id)
+    user = User.find_by_username(current_user.username)
+
+    if alert_record:
+        if user:
+            if alert_record.submitted_by_user_id == user.id:
+                alert_record.delete()
+            else:
+                return jsonify({'error': message['illegal_access']}), 404
+        else:
+            return jsonify({'error': message['user_not_found']}), 404
+    else:
+        return jsonify({'message': message['custom_alert_not_found']}), 200
+
+    return jsonify({'message': message['custom_alert_added_successfully']}), 200
+
+
 @blueprint.route('/edit', methods=["PUT"])
 @login_required
 def edit():
     data = request.form
 
     id = int(data.get('id'))
+    custom_alert = CustomAlert.filter_by_id(id)
     region_match = bool(data.get('region_match'))
     description = data.get('description')
     username = current_user.username
-    notify_user_ids = data.get('notify_user_ids') if data.get('notify_user_ids') == 'null' else str(data.get('notify_user_ids')).split(',')
+    notify_user_ids = [] if data.get('notify_user_ids') == 'null' else str(data.get('notify_user_ids')).split(',')
 
     user = User.find_by_username(username)
 
-    if notify_user_ids != "null" and user.status != RoleType['ADMIN']:
+    if notify_user_ids != "null" and user.role != RoleType['ADMIN']:
         return jsonify({'error': message['illegal_access']}), 404
 
-    custom_alert = CustomAlert.filter_by_id(id)
+    # Each user can only edit their own records
+    if custom_alert:
+        if custom_alert.submitted_by_user_id != user.id:
+            return jsonify({'error': message['illegal_access']}), 404
+
     if custom_alert:
         try:
             custom_alert.region_match = region_match
@@ -107,7 +134,7 @@ def query():
             'id': record.id,
             'site': alpr_group.web_server_config['agent_label'],
             'camera': alpr_group.web_server_config['camera_label'],
-            'plate_number': record.license_plate,
+            'plate_number': alpr_group.best_plate_number,
             'plate_crop_jpeg': alpr_group.best_plate['plate_crop_jpeg'],
             'direction': alpr_group.travel_direction_class_tag,
             'confidence': alpr_group.best_confidence_percent,
@@ -124,6 +151,9 @@ def query():
 @blueprint.route('/<id>/choices.js', methods=["GET"])
 @login_required
 def setChoices(id):
+    if id is None:
+        return render_template('home/page-404.html')
+
     custom_alert = CustomAlert.filter_by_id(int(id))
     if custom_alert:
         return jsonify(helper.setChoices(current_user, custom_alert.notify_user_ids))

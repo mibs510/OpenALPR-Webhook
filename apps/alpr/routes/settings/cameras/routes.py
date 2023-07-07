@@ -1,8 +1,13 @@
 import logging
+import time
+
 from flask import render_template, request, jsonify
 from flask_login import current_user, login_required
+from redis.client import Redis
+from rq import Queue
 
 from apps import db
+from apps.alpr import queue
 from apps.alpr.models.cache import CameraCache
 from apps.alpr.models.settings import CameraSettings
 from apps.alpr.routes.settings.cameras import blueprint
@@ -10,6 +15,8 @@ from apps.alpr.routes.settings.cameras.manufacturers.Dahua import Dahua
 from apps.authentication.routes import ROLE_ADMIN
 from apps.helpers import message
 import apps.helpers as helper
+from worker_manager import WorkerManager
+from worker_manager_enums import WMSCommand, WorkerType
 
 
 @blueprint.route('/edit', methods=['GET', 'POST'])
@@ -111,7 +118,7 @@ def save():
     focus_zoom_interval_check = data.get('focus_zoom_interval_check')
     notify_on_failed_interval_check = bool(data.get('notify_on_failed_interval_check'))
     manufacturer = data.get('manufacturer')
-    enable = data.get('enable')
+    enable = bool(data.get('enable'))
 
     # Check to if we can even put the values through the validators
     if len(hostname) == 0:
@@ -145,8 +152,28 @@ def save():
             camera.focus_zoom_interval_check = focus_zoom_interval_check
             camera.notify_on_failed_interval_check = notify_on_failed_interval_check
             camera.manufacturer = manufacturer
-            camera.enable = bool(enable)
+            previously_enabled = camera.enable
+            camera.enable = enable
             camera.save()
+            try:
+                if previously_enabled != enable:
+                    if enable:
+                        wms = WorkerManager(WMSCommand.START_WORKER)
+                        wms.debug = True
+                        wms.worker_type = WorkerType.Camera
+                        wms.worker_id = camera.camera_id
+                        wms.send()
+                        time.sleep(1)
+                        # Add the function to the queue
+                        q = Queue(camera.camera_id, connection=Redis())
+                        q.enqueue(queue.focus_camera, args=(camera.camera_id,), job_timeout=-1)
+                    else:
+                        wms = WorkerManager(WMSCommand.STOP_WORKER)
+                        wms.debug = True
+                        wms.worker_id = camera.camera_id
+                        wms.send()
+            except Exception as ex:
+                logging.exception(ex)
         except Exception as ex:
             logging.exception(ex)
             return "could_not_process"

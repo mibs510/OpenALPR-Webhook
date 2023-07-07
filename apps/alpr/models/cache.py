@@ -1,5 +1,6 @@
 import logging
 import os
+import pathlib
 import platform
 from datetime import datetime, timedelta
 
@@ -26,20 +27,33 @@ class Cache(db.Model):
     year = db.Column(db.Integer)
     all_time_plates_captured = db.Column(db.Integer, default=0)
     all_time_alerts = db.Column(db.Integer, default=0)
+    all_time_custom_alerts = db.Column(db.Integer, default=0)
     all_time_vehicles = db.Column(db.Integer, default=0)
     month = db.Column(NestedMutableJson,
-                      default=[{"license_plates_captured": 0, "alerts": 0, "vehicles": 0, "cameras": {}, "regions": {}},
-                               {"license_plates_captured": 0, "alerts": 0, "vehicles": 0, "cameras": {}, "regions": {}},
-                               {"license_plates_captured": 0, "alerts": 0, "vehicles": 0, "cameras": {}, "regions": {}},
-                               {"license_plates_captured": 0, "alerts": 0, "vehicles": 0, "cameras": {}, "regions": {}},
-                               {"license_plates_captured": 0, "alerts": 0, "vehicles": 0, "cameras": {}, "regions": {}},
-                               {"license_plates_captured": 0, "alerts": 0, "vehicles": 0, "cameras": {}, "regions": {}},
-                               {"license_plates_captured": 0, "alerts": 0, "vehicles": 0, "cameras": {}, "regions": {}},
-                               {"license_plates_captured": 0, "alerts": 0, "vehicles": 0, "cameras": {}, "regions": {}},
-                               {"license_plates_captured": 0, "alerts": 0, "vehicles": 0, "cameras": {}, "regions": {}},
-                               {"license_plates_captured": 0, "alerts": 0, "vehicles": 0, "cameras": {}, "regions": {}},
-                               {"license_plates_captured": 0, "alerts": 0, "vehicles": 0, "cameras": {}, "regions": {}},
-                               {"license_plates_captured": 0, "alerts": 0, "vehicles": 0, "cameras": {}, "regions": {}}]
+                      default=[{"license_plates_captured": 0, "alerts": 0, "custom_alerts": 0, "vehicles": 0,
+                                "cameras": {}, "regions": {}},
+                               {"license_plates_captured": 0, "alerts": 0, "custom_alerts": 0, "vehicles": 0,
+                                "cameras": {}, "regions": {}},
+                               {"license_plates_captured": 0, "alerts": 0, "custom_alerts": 0, "vehicles": 0,
+                                "cameras": {}, "regions": {}},
+                               {"license_plates_captured": 0, "alerts": 0, "custom_alerts": 0, "vehicles": 0,
+                                "cameras": {}, "regions": {}},
+                               {"license_plates_captured": 0, "alerts": 0, "custom_alerts": 0, "vehicles": 0,
+                                "cameras": {}, "regions": {}},
+                               {"license_plates_captured": 0, "alerts": 0, "custom_alerts": 0, "vehicles": 0,
+                                "cameras": {}, "regions": {}},
+                               {"license_plates_captured": 0, "alerts": 0, "custom_alerts": 0, "vehicles": 0,
+                                "cameras": {}, "regions": {}},
+                               {"license_plates_captured": 0, "alerts": 0, "custom_alerts": 0, "vehicles": 0,
+                                "cameras": {}, "regions": {}},
+                               {"license_plates_captured": 0, "alerts": 0, "custom_alerts": 0, "vehicles": 0,
+                                "cameras": {}, "regions": {}},
+                               {"license_plates_captured": 0, "alerts": 0, "custom_alerts": 0, "vehicles": 0,
+                                "cameras": {}, "regions": {}},
+                               {"license_plates_captured": 0, "alerts": 0, "custom_alerts": 0, "vehicles": 0,
+                                "cameras": {}, "regions": {}},
+                               {"license_plates_captured": 0, "alerts": 0, "custom_alerts": 0, "vehicles": 0,
+                                "cameras": {}, "regions": {}}]
                       )
 
     def __init__(self, year=datetime.now().year, month=datetime.now().month):
@@ -67,10 +81,24 @@ class Cache(db.Model):
 
         return cache.month[month - 1]['alerts']
 
+    def get_combined_alert_count(self, year: int, month: int) -> int:
+        cache = self.filter_by_year(year)
+        if cache is None:
+            return 0
+
+        return cache.month[month - 1]['alerts'] + cache.month[month - 1]['custom_alerts']
+
+    def get_custom_alert_count(self, year: int, month: int) -> int:
+        cache = self.filter_by_year(year)
+        if cache is None:
+            return 0
+
+        return cache.month[month - 1]['custom_alerts']
+
     def get_all_db_file_sizes(self, raw=False) -> str:
         if raw:
-            return str(os.path.getsize("apps/db/alpr_alert.sqlite") + \
-                       os.path.getsize("apps/db/alpr_group.sqlite") + \
+            return str(os.path.getsize("apps/db/alpr_alert.sqlite") +
+                       os.path.getsize("apps/db/alpr_group.sqlite") +
                        os.path.getsize("apps/db/vehicle.sqlite"))
 
         return beautify.human_size(os.path.getsize("apps/db/alpr_alert.sqlite") +
@@ -116,21 +144,24 @@ class Cache(db.Model):
             last_month = 12
 
         for i in range(12):
-            if chart == ChartType.PLATES_CAPTURED_CHART or chart == ChartType.TOP_REGION_CHART:
+            if chart == ChartType.PLATES_CAPTURED_CHART or chart == ChartType.TOP_SECOND_REGION_CHART:
                 # License Plates Captured
                 this_month_license_plate_count = self.get_license_plate_count(year, last_month)
 
                 if chart == ChartType.PLATES_CAPTURED_CHART:
                     series.append(this_month_license_plate_count)
-                elif chart == ChartType.TOP_REGION_CHART:
+                elif chart == ChartType.TOP_SECOND_REGION_CHART:
                     # Top Region
-                    this_month_top_region_count = self.get_top_region_count(year, last_month)
-                    series.append(this_month_top_region_count)
+                    this_month_top_second_region_count = self.get_top_second_region_count(year, last_month)
+                    series.append(this_month_top_second_region_count)
 
             elif chart == ChartType.ALERT_CHART:
                 # Alerts
                 this_month_alert_count = self.get_alert_count(year, last_month)
                 series.append(this_month_alert_count)
+            elif chart == ChartType.CUSTOM_ALERT:
+                this_month_custom_alert_count = self.get_custom_alert_count(year, last_month)
+                series.append(this_month_custom_alert_count)
 
             # Move to previous month
             last_month -= 1
@@ -152,8 +183,8 @@ class Cache(db.Model):
         for i in range(12):
             start_of_month = datetime(year=year, month=month, day=1)
 
-            if chart == ChartType.TOP_REGION_CHART:
-                pretty_region = beautify.country(self.get_top_region(year, month))
+            if chart == ChartType.TOP_SECOND_REGION_CHART:
+                pretty_region = beautify.country(self.get_top_second_region(year, month))
                 series.append("{} - {}".format(start_of_month.strftime("%b %Y"), pretty_region))
             else:
                 series.append(start_of_month.strftime("%b %Y"))
@@ -215,31 +246,33 @@ class Cache(db.Model):
             year -= 1
             last_month = 12
 
-        this_month_alert_count = self.get_alert_count(year, month)
+        this_month_alert_count = self.get_combined_alert_count(year, month)
         this_month_license_plate_count = self.get_license_plate_count(year, month)
         # print("this_month_license_plate_count = {}".format(this_month_license_plate_count))
-        this_month_top_region = self.get_top_region(year, month)
-        # print("this_month_top_region = {}".format(this_month_top_region))
-        this_month_top_region_count = self.get_top_region_count(year, month)
-        # print("this_month_top_region_count = {}".format(this_month_top_region_count))
+        this_month_top_second_region = self.get_top_second_region(year, month)
+        # print("this_month_top_second_region = {}".format(this_month_top_second_region))
+        this_month_top_second_region_count = self.get_top_second_region_count(year, month)
+        # print("this_month_top_second_region_count = {}".format(this_month_top_second_region_count))
 
         response['this_month_alert_count'] = this_month_alert_count
+        response['this_month_rekor_alert_count'] = self.get_alert_count(year, month)
+        response['this_month_custom_alert_count'] = self.get_custom_alert_count(year, month)
         response['this_month_license_plate_count'] = this_month_license_plate_count
-        response['this_month_top_region'] = beautify.country(this_month_top_region)
-        response['this_month_top_region_count'] = this_month_top_region_count
+        response['this_month_top_second_region'] = beautify.country(this_month_top_second_region)
+        response['this_month_top_second_region_count'] = this_month_top_second_region_count
 
         last_month_alert_count = self.get_alert_count(year, last_month)
         last_month_license_plate_count = self.get_license_plate_count(year, last_month)
         # print("last_month_license_plate_count = {}".format(last_month_license_plate_count))
-        last_month_top_region = self.get_top_region(year, last_month)
-        # print("last_month_top_region = {}".format(last_month_top_region))
-        last_month_top_region_count = self.get_region_count(year, last_month, this_month_top_region)
-        # print("last_month_top_region_count = {}".format(last_month_top_region_count))
+        last_month_top_second_region = self.get_top_second_region(year, last_month)
+        # print("last_month_top_second_region = {}".format(last_month_top_second_region))
+        last_month_top_second_region_count = self.get_region_count(year, last_month, this_month_top_second_region)
+        # print("last_month_top_second_region_count = {}".format(last_month_top_second_region_count))
 
         response['last_month_alert_count'] = last_month_alert_count
         response['last_month_license_plate_count'] = last_month_license_plate_count
-        response['last_month_top_region'] = beautify.country(last_month_top_region)
-        response['last_month_top_region_count'] = last_month_top_region_count
+        response['last_month_top_second_region'] = beautify.country(last_month_top_second_region)
+        response['last_month_top_second_region_count'] = last_month_top_second_region_count
 
         # Calculate Month-To-Month for the number of plates captured
         if last_month_license_plate_count != 0:
@@ -289,29 +322,37 @@ class Cache(db.Model):
 
         response["this_month_alerts_mtm_percent"] = mtm_alerts_percent
 
-        # Calculate Month-To-Month for the top region
-        if last_month_top_region != "N/A" and this_month_top_region != "N/A":
-            mtm_region_percent = ((this_month_top_region_count / last_month_top_region_count) - 1) * 100
-            mtm_region_percent = round(mtm_region_percent, 1)
-            # Determine the color/class of the percentage
-            if mtm_region_percent < 0:
-                response['this_month_top_region_mtm_class'] = "text-danger"
-                response['this_month_top_region_mtm_svg_html_arrow'] = beautify.get_negative_mtm_svg_html_arrow()
-            elif mtm_region_percent == 0:
-                response['this_month_top_region_mtm_class'] = ""
-            elif mtm_region_percent > 0:
-                response['this_month_top_region_mtm_class'] = "text-success"
-                response['this_month_top_region_mtm_svg_html_arrow'] = beautify.get_positive_mtm_svg_html_arrow()
-        elif last_month_top_region_count == 0 and this_month_top_region_count != 0:
+        # Calculate Month-To-Month for the top second region
+        if last_month_top_second_region != "N/A" and this_month_top_second_region != "N/A":
+            if last_month_top_second_region == this_month_top_second_region:
+                mtm_region_percent = \
+                    ((this_month_top_second_region_count / last_month_top_second_region_count) - 1) * 100
+                mtm_region_percent = round(mtm_region_percent, 1)
+                # Determine the color/class of the percentage
+                if mtm_region_percent < 0:
+                    response['this_month_top_second_region_mtm_class'] = "text-danger"
+                    response['this_month_top_second_region_mtm_svg_html_arrow'] = \
+                        beautify.get_negative_mtm_svg_html_arrow()
+                elif mtm_region_percent == 0:
+                    response['this_month_top_second_region_mtm_class'] = ""
+                elif mtm_region_percent > 0:
+                    response['this_month_top_second_region_mtm_class'] = "text-success"
+                    response['this_month_top_second_region_mtm_svg_html_arrow'] = \
+                        beautify.get_positive_mtm_svg_html_arrow()
+            else:
+                mtm_region_percent = 100
+                response['this_month_top_second_region_mtm_class'] = "text-success"
+                response['this_month_top_second_region_mtm_svg_html_arrow'] = beautify.get_positive_mtm_svg_html_arrow()
+        elif last_month_top_second_region_count == 0 and this_month_top_second_region_count != 0:
             mtm_region_percent = 100
-            response['this_month_top_region_mtm_class'] = "text-success"
-            response['this_month_top_region_mtm_svg_html_arrow'] = beautify.get_positive_mtm_svg_html_arrow()
+            response['this_month_top_second_region_mtm_class'] = "text-success"
+            response['this_month_top_second_region_mtm_svg_html_arrow'] = beautify.get_positive_mtm_svg_html_arrow()
         else:
             mtm_region_percent = 0
-            response['this_month_top_region_mtm_class'] = ""
-            response['this_month_top_region_mtm_svg_html_arrow'] = ""
+            response['this_month_top_second_region_mtm_class'] = ""
+            response['this_month_top_second_region_mtm_svg_html_arrow'] = ""
 
-        response["this_month_top_region_mtm_percent"] = mtm_region_percent
+        response["this_month_top_second_region_mtm_percent"] = mtm_region_percent
 
         return response
 
@@ -403,7 +444,15 @@ class Cache(db.Model):
             return "N/A"
 
         length = len(list(cache.month[month - 1]['regions']))
-        return str(list(cache.month[month - 1]['regions'].keys())[1]) if length != 0 else "N/A"
+        return str(list(cache.month[month - 1]['regions'].keys())[0]) if length != 0 else "N/A"
+
+    def get_top_second_region(self, year, month) -> str:
+        cache = self.filter_by_year(year)
+        if cache is None:
+            return "N/A"
+
+        length = len(list(cache.month[month - 1]['regions']))
+        return str(list(cache.month[month - 1]['regions'].keys())[1]) if length >= 1 else "N/A"
 
     def get_top_region_count(self, year: int, month: int) -> int:
         cache = self.filter_by_year(year)
@@ -411,7 +460,15 @@ class Cache(db.Model):
             return 0
 
         length = len(list(cache.month[month - 1]['regions']))
-        return int(list(cache.month[month - 1]['regions'].values())[1]) if length != 0 else 0
+        return int(list(cache.month[month - 1]['regions'].values())[0]) if length != 0 else 0
+
+    def get_top_second_region_count(self, year: int, month: int) -> int:
+        cache = self.filter_by_year(year)
+        if cache is None:
+            return 0
+
+        length = len(list(cache.month[month - 1]['regions']))
+        return int(list(cache.month[month - 1]['regions'].values())[1]) if length >= 1 else 0
 
     def init(self):
         try:
@@ -504,7 +561,8 @@ class Cache(db.Model):
                     agent_cache = AgentCache.filter_by_agent_uid(agent_uid)
                     if agent_settings is None:
                         agent_settings = AgentSettings(agent_uid, alpr_group.get_latest_agent_label(agent_uid))
-                        agent_settings.created = datetime.fromtimestamp(ALPRGroup.get_oldest_agent_epoch_start(agent_uid) / 1000)
+                        agent_settings.created = \
+                            datetime.fromtimestamp(ALPRGroup.get_oldest_agent_epoch_start(agent_uid) / 1000)
                         agent_settings.save()
                     if agent_cache is None:
                         agent_cache = AgentCache(agent_uid, alpr_group.get_latest_agent_label(agent_uid))
@@ -513,7 +571,6 @@ class Cache(db.Model):
                     agent_cache.agent_version = alpr_group.get_latest_agent_version(agent_uid)
                     agent_cache.agent_type = alpr_group.get_latest_agent_type(agent_uid)
                     agent_cache.save()
-
 
                 # Populate cache
                 cache.all_time_plates_captured += this_month_license_plate_count
@@ -651,35 +708,3 @@ class CameraCache(db.Model):
             db.session.close()
             error = str(e.__dict__['orig'])
             raise InvalidUsage(error, 422)
-
-
-class Counter(db.Model):
-    __bind_key__ = 'cache'
-    __tablename__ = 'Counter'
-
-    id = db.Column(db.Integer, primary_key=True)
-    key = db.Column(db.String)
-    count = db.Column(db.Integer)
-
-    def __init__(self, key: str):
-        self.key = key
-        self.count = 0
-
-    @classmethod
-    def filter_by_key(cls, key: str) -> "Counter":
-        return cls.query.filter_by(key=key).first()
-
-    def one_down(self):
-        self.count -= 1
-
-    def one_up(self):
-        self.count += 1
-
-    def save(self) -> None:
-        try:
-            db.session.add(self)
-            db.session.commit()
-        except SQLAlchemyError as e:
-            db.session.rollback()
-            db.session.close()
-            logging.exception(e)

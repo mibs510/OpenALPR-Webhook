@@ -321,6 +321,7 @@
                         beforeSend: function (){
                             Swal.fire({
                                 text: 'Retrieving focus & zoom values...',
+                                allowOutsideClick: false,
                                 didOpen: () => {
                                     Swal.showLoading()
                                 },
@@ -353,6 +354,7 @@
                         beforeSend: function (){
                             Swal.fire({
                                 text: 'Forcing focus & zoom...',
+                                allowOutsideClick: false,
                                 didOpen: () => {
                                     Swal.showLoading()
                                 },

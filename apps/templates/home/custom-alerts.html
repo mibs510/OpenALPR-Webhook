@@ -68,6 +68,11 @@
                         },
                         { id: 'confidence', name: 'Confidence', sort: false },
                         { id: 'time', name: 'Time', sort: false },
+                        { name: 'Actions',
+                            formatter: (cell, row) => {
+                            return gridjs.html(`<button type="button" data-bs-toggle="modal" onclick="deleteCustomAlert(${row.cells[0].data})"" class="btn btn-danger d-inline-flex align-items-center">Delete<svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path clip-rule="evenodd" fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"></path></svg></button>`)
+                            }
+                        },
                     ],
                     server: {
                     url: '{{ url_for('custom_alerts.query') }}',
@@ -93,6 +98,52 @@
                         },
                     },
                 }).render(document.getElementById('customAlerts'));
+
+                // Delete custom alert
+                function deleteCustomAlert(id){
+                    var alertRecord = id
+                        Swal.fire({
+                            title: "Are you sure?",
+                            showCancelButton: true,
+                            icon: "warning",
+                            cancelButtonText: "Cancel",
+                            confirmButtonText: "Yes, delete it!",
+                            buttonsStyling: false, customClass: {cancelButton:'mb-2 me-2 btn btn-primary', confirmButton: 'mb-2 me-2 btn btn-danger'}
+                        }).then((isConfirm) => {
+                            if (isConfirm.isConfirmed) {
+                                $.ajax({
+                                    type: 'PUT',
+                                    url:  '/alerts/custom/delete/' + alertRecord,
+                                    async: true,
+                                    cache: false,
+                                    contentType: false,
+                                    processData: false,
+                                    beforeSend: function (){
+                                        Swal.fire({
+                                            text: 'Deleting record...',
+                                            didOpen: () => {
+                                                Swal.showLoading()
+                                            },
+                                        })
+                                    },
+                                    error : function(request,error) {
+                                        Swal.fire( {icon: 'error', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                            text: JSON.parse(request.responseText)['error']})
+                                    },
+                                    success : function(res) {
+                                        Swal.fire( {icon: 'success', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                            text: res['message']}).then(() => {
+                                                location.reload();
+                                            });
+                                    },
+                                    complete: function(){
+                                        Swal.hideLoading()
+                                    }
+                                })
+                            }
+                            return false;
+                        });
+                }
             </script>
             <!-- home/custom-alerts.html -->
 {% endblock javascripts %}

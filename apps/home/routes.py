@@ -16,7 +16,7 @@ def index():
     cache = Cache().filter_by_year()
     alpr_group_records = ALPRGroup().get_dashboard_records()
     alpr_alert_records = ALPRAlert().get_dashboard_records()
-    custom_alerts = CustomAlert().get_dashboard_records(current_user)
+    custom_alerts = CustomAlert().get_dashboard_records()
 
     return render_template('home/index.html', segment='index', alpr_group_records=alpr_group_records,
                            alpr_alert_records=alpr_alert_records, custom_alerts=custom_alerts,
@@ -24,9 +24,10 @@ def index():
                            us_map_regions=cache.get_us_map_series(),
                            plates_captured_chart_series=cache.get_chart_series(ChartType.PLATES_CAPTURED_CHART),
                            alert_chart_series=cache.get_chart_series(ChartType.ALERT_CHART),
-                           top_region_chart_series=cache.get_chart_series(ChartType.TOP_REGION_CHART),
+                           custom_alert_chart_series=cache.get_chart_series(ChartType.CUSTOM_ALERT),
+                           top_region_chart_series=cache.get_chart_series(ChartType.TOP_SECOND_REGION_CHART),
                            plates_captured_alerts_chart_labels=cache.get_chart_labels(),
-                           top_region_chart_labels=cache.get_chart_labels(ChartType.TOP_REGION_CHART),
+                           top_region_chart_labels=cache.get_chart_labels(ChartType.TOP_SECOND_REGION_CHART),
                            number_of_records=cache.get_number_of_records(),
                            size_of_databases=cache.get_all_db_file_sizes(), top_cameras=cache.get_top_cameras(),
                            number_of_records_raw=cache.get_number_of_records(raw=True),

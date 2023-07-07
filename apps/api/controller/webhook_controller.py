@@ -50,16 +50,13 @@ class Webhook(Resource):
                 return BaseController.errorGeneral("POST has been disabled"), 403
             elif auth_level == PostAuth.USERS_ADMINS or auth_level == PostAuth.ADMINS_ONLY:
                 try:
-                    # Re-serialize the object "custom_data": "{\"API_KEY\": \"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee\"}" ->
-                    # "custom_data": {"API_KEY": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"}
-                    json_obj = json.loads(request.json['custom_data'])
-
-                    api_key = json_obj['API_KEY']
-                    if api_key != "":
-                        token_holder = User.find_by_api_token(api_key)
-                        if token_holder is None:
-                            return BaseController.errorGeneral("Unknown API_KEY holder"), 403
-                    else:
+                    try:
+                        api_key = request.json['custom_data']['API_KEY']
+                        if api_key != "":
+                            token_holder = User.find_by_api_token(api_key)
+                            if token_holder is None:
+                                return BaseController.errorGeneral("Unknown API_KEY holder"), 403
+                    except KeyError:
                         return BaseController.errorGeneral("Missing API_KEY in custom_data"), 403
 
                     if auth_level == PostAuth.ADMINS_ONLY:
@@ -71,7 +68,7 @@ class Webhook(Resource):
                     return BaseController.errorGeneral("Could not process custom_data")
 
                 # Redefine custom_data for the schema validators
-                request.json['custom_data'] = json_obj
+                # request.json['custom_data'] = json_obj
 
             # Enumerate the 'data_type' key
             data_type = DataType(request.json['data_type'])

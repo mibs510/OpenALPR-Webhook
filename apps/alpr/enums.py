@@ -13,8 +13,9 @@ class AccountVerified(enum.Enum):
 
 class ChartType(enum.Enum):
     ALERT_CHART = "alert-chart"
+    CUSTOM_ALERT = "custom-alert"
     PLATES_CAPTURED_CHART = "plates-captured-chart"
-    TOP_REGION_CHART = "top-region-chart"
+    TOP_SECOND_REGION_CHART = "top-second-region-chart"
 
 
 class DataType(enum.Enum):
@@ -23,18 +24,9 @@ class DataType(enum.Enum):
     VEHICLE = "vehicle"
 
 
-class MultiProcessCommand(enum.Enum):
-    START_WORKER = "start-worker"
-    STOP_WORKER = "stop-worker"
-    CLOSE_CONNECTION = "close"
-
-
 class UserRole(enum.Enum):
     ADMIN = "ADMIN"
     REGULAR = "NONADMIN"
 
 
-class WorkerType(enum.Enum):
-    # worker type = queue name
-    Camera = 'cameras'
-    General = 'default'
+

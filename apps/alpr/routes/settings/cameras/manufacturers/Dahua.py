@@ -108,7 +108,7 @@ class Dahua:
                 for i in range(5):
                     response = requests.get(url, auth=HTTPDigestAuth(self.username, self.password))
                     time.sleep(1)
-                    logging.debug("Camera {}/{} HTTP response status code: {}".format(self.label, self.id,
+                    logging.debug("Camera {} (ID: {}) HTTP response status code: {}".format(self.label, self.id,
                                                                                       response.status_code))
             except Exception as ex:
                 logging.exception(ex)
@@ -122,5 +122,4 @@ class Dahua:
                               format(self.focus, self.zoom, values['status.Focus'], values['status.Zoom']))
                 return False
         except Exception as ex:
-            logging.exception(ex)
-            raise ex
+            raise Exception(ex)
