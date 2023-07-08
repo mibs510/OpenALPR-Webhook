@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.0.4 (2023-07-08)
+
+### Fix
+
+* **requirements.txt:** Synced packages ([`2d47f3b`](https://github.com/mibs510/OpenALPR-Webhook/commit/2d47f3b0ca385dc3cd503681d81a9eab85ee3d02))
+
 ## v0.0.3 (2023-07-08)
 
 ### Fix
