@@ -11,6 +11,7 @@ setup(
     name='OpenALPR-Webhook',
     version=__version__,
     platforms='linux',
+    packages=['apps', 'nginx'],
     include_package_data=True,
     url='https://github.com/mibs510/OpenALPR-Webhook',
     license='MIT',
