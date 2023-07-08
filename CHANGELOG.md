@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.0.5 (2023-07-08)
+
+### Fix
+
+* **README.md:** Installation ([`ae41cd4`](https://github.com/mibs510/OpenALPR-Webhook/commit/ae41cd4593f0786f574c886aa54fdebbc40f5690))
+
 ## v0.0.4 (2023-07-08)
 
 ### Fix
