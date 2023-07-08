@@ -18,6 +18,7 @@ It was designed with an emphasis on security to meet organization/business needs
 - ~~Worker management needs reimplementation~~
   - ~~Currently working on this~~
 - Manually requeuing jobs fail
+- Update vulnerable packages (Flask, requests, Werkzeug)
 - ~~Searching plates will only work if pagination position is on page 1~~
   - ~~This is a grid.js issue [#1314](https://github.com/grid-js/gridjs/issues/1314) [#1344](https://github.com/grid-js/gridjs/pull/1334) [#1311](https://github.com/grid-js/gridjs/issues/1311).~~
 
@@ -64,12 +65,15 @@ Additionally, you can set Redis server to start automatically. See the Bare Serv
 TBD
 
 ### Bare Server
-1. apt install build-essential python3 python3-dev redis-server && systemctl enable redis-server && systemctl start redis-server
-2. git https://github.com/mibs510/OpenALPR-Webhook
+1. apt install build-essential python3 python3-dev python3.10-venv pip3 redis-server && systemctl enable redis-server && systemctl start redis-server
+2. git clone https://github.com/mibs510/OpenALPR-Webhook
 3. cd OpenALPR-Webhook
-4. pip3 install -r requirements.txt
-5. ./venv/bin/activate
-6. ./app.py --host=0.0.0.0 --port=8080
+4. python3 -m venv ./venv
+5. source ./venv/bin/activate
+6. pip3 install flask-dance
+7. pip3 install -r requirements.txt
+8. /venv/bin/activate
+9. /app.py --host=0.0.0.0 --port=8080
 
 #### Linux systemd service
 You will want to create a service file to automatically start OpenALPR-Webhook upon each reboot.
@@ -77,7 +81,7 @@ You will want to create a service file to automatically start OpenALPR-Webhook u
 `sudo nano /etc/systemd/system/oalpr-wh.service`
 
 
-`
+```
 [Unit]
 Description=OpenALPR-Webhook
 After=network.target
@@ -85,20 +89,25 @@ After=network.target
 [Service]
 User=user
 WorkingDirectory=/home/user/OpenALPR-Webhook
-ExecStart=/home/user/OpenALPR-Webhook/app.py --host=0.0.0.0 --port=8080
+ExecStart=/home/user/OpenALPR-Webhook/venv/bin/python3 /home/user/OpenALPR-Webhook/app.py --host=0.0.0.0 --port=8080
 Restart=always
 
 [Install]
 WantedBy=multi-user.target
-`
+```
 
 Be sure to modify `User`, `WorkingDirectory`, and `ExecStart`
+`User` should not be a user with root privileges
 <br>
 Then execute:
 <br>
 `sudo systemctl daemon-reload`
+
 `sudo systemctl enable oalpr-wh`
+
 `sudo systemctl start oalpr-wh`
+
+Optional: `journalctl -n 50 -f`
 
 ### New Instance
 Head over to the URL of your server. You will be required to login. Click 'register' to create a super admin account.
@@ -106,6 +115,21 @@ Head over to the URL of your server. You will be required to login. Click 'regis
 After creating a super admin account, the register link will throw an 'Access Denied' as a protective measure against unauthorized account creation.
 <br>
 Accounts will need to be created manually by an administrator under Settings/Users.
+
+### Updates
+
+```shell
+cd OpenALPR-Webhook
+# Backup databases 
+mkdir apps/db.backup
+cp apps/db/* apps/db.backup
+# Get latest version of OpenALPR-Webhook
+git pull
+# Apply changes to the databases 
+flask db init --multidb
+flask db migrate
+flask db upgrade
+```
 
 # Documentation
 ### Dashboard

@@ -50,6 +50,3 @@ apps/uploads/*
 
 # Synology Drive Client
 .sync-exclude.lst
-
-# IPBan Log Directory
-log/

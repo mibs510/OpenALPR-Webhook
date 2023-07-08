@@ -1,6 +1,7 @@
+from flask_script import Manager
+
 from apps import create_app, db
 from apps.config import config_dict
-from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 from flask_minify import Minify
 import os
@@ -16,7 +17,7 @@ app_config = config_dict[get_config_mode.capitalize()]
 
 app = create_app(app_config)
 app.config['ENV'] = get_config_mode.capitalize()
-Migrate(app, db)
+migrate = Migrate(app, db)
 
 # DB Migration
 manager = Manager(app)

@@ -21,7 +21,7 @@ def init(filename: str):
     logging.getLogger().setLevel(logging.DEBUG)
 
     """ Catch all unhandled exceptions """
-    sys.excepthook = exception_hook
+    # sys.excepthook = exception_hook
 
     """ .log File Handler """
     dot_log_file_handler = RotatingFileHandler(logdir + "/" + filename, maxBytes=10000000, backupCount=9)

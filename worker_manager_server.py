@@ -9,7 +9,6 @@ import socket
 import sys
 import time
 
-import psutil
 import redis as redis
 from progressbar import progressbar
 from redis import Redis
