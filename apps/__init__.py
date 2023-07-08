@@ -91,7 +91,7 @@ def configure_database(app):
 
 def start_redis_workers():
     # Start redis workers on Linux only
-    if platform.system() == "Linuxx":
+    if platform.system() == "Linux":
         # Worker Manager Server
         worker_manager_server = WorkerManager(WMSCommand.ACK)
         worker_manager_server.debug = True
