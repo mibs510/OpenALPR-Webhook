@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.0.3 (2023-07-08)
+
+### Fix
+
+* **apps:** Setup.py ([`0ac2d6f`](https://github.com/mibs510/OpenALPR-Webhook/commit/0ac2d6fa7a29eebc3573769ca8d9218e4c80fbae))
+
 ## v0.0.2 (2023-07-08)
 
 ### Fix
