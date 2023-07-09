@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.0.6 (2023-07-09)
+
+### Fix
+
+* **__init__.py:** Subprocess.Popen() ([`11c4277`](https://github.com/mibs510/OpenALPR-Webhook/commit/11c4277bf324f8b603157d4524a781fa1502882b))
+
 ## v0.0.5 (2023-07-08)
 
 ### Fix
