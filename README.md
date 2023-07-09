@@ -64,15 +64,16 @@ Additionally, you can set Redis server to start automatically. See the Bare Serv
 TBD
 
 ### Bare Server
-1. apt install build-essential python3 python3-dev python3.10-venv pip3 redis-server && systemctl enable redis-server && systemctl start redis-server
-2. git clone https://github.com/mibs510/OpenALPR-Webhook
-3. cd OpenALPR-Webhook
-4. python3 -m venv ./venv
-5. source ./venv/bin/activate
-6. pip3 install flask-dance
-7. pip3 install -r requirements.txt
-8. /venv/bin/activate
-9. /app.py --host=0.0.0.0 --port=8080
+```shell
+apt install build-essential python3 python3-dev python3.10-venv pip3 redis-server && systemctl enable redis-server && systemctl start redis-server
+git clone https://github.com/mibs510/OpenALPR-Webhook
+cd OpenALPR-Webhook
+python3 -m venv ./venv
+source ./venv/bin/activate
+pip3 install flask-dance
+pip3 install -r requirements.txt
+./app.py --host=0.0.0.0 --port=8080
+```
 
 #### Linux systemd service
 You will want to create a service file to automatically start OpenALPR-Webhook upon each reboot.
@@ -97,9 +98,9 @@ WantedBy=multi-user.target
 
 Be sure to modify `User`, `WorkingDirectory`, and `ExecStart`
 `User` should not be a user with root privileges
-<br>
+
 Then execute:
-<br>
+
 `sudo systemctl daemon-reload`
 
 `sudo systemctl enable oalpr-wh`
@@ -109,19 +110,26 @@ Then execute:
 Optional: `journalctl -n 50 -f`
 
 ### New Instance
-Head over to the URL of your server. You will be required to login. Click 'register' to create a super admin account.
-<br>
-After creating a super admin account, the register link will throw an 'Access Denied' as a protective measure against unauthorized account creation.
-<br>
-Accounts will need to be created manually by an administrator under Settings/Users.
+1. Head over to the URL of your server: http://OpenALPR-Webhook:8080
+2. You will be required to login. Click 'register' to create a super admin account.
+
+
+* After creating a super admin account, the register link will throw an 'Access Denied' as a protective measure against unauthorized account creation.
+* Accounts will need to be created manually by an administrator under Settings/Users.
+* Refer to [Settings/Profile]() section to begin accepting data.
 
 ### Updates
 
 ```shell
+# Log into OpenALPR-Webhook
+# Go to Settings/Maintenance/App (http://OpenALPR-Webhook:8080/settings/maintenance/app)
+# Shutdown Worker Manager Server
+# Go to the root directory of the OpenALPR-Webhook
 cd OpenALPR-Webhook
-# Backup databases 
+# Backup databases
 mkdir apps/db.backup
 cp apps/db/* apps/db.backup
+# You should not need to reset, unless git complains about local files needing to be committed or stashed.
 # To overwrite any changes to project files (excluding databases, logs, secrets, etc)
 git reset --hard
 # Get latest version of OpenALPR-Webhook

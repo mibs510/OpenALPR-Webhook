@@ -46,7 +46,15 @@ ipban.ini
 .idea
 
 # Uploads directory
-apps/uploads/*
+apps/uploads
+
+# Download directory
+apps/downloads
+
+# Logs
+logs/
+
+log
 
 # Synology Drive Client
 .sync-exclude.lst

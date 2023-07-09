@@ -1,3 +1,4 @@
+import glob
 import os
 
 from setuptools import setup
@@ -6,6 +7,7 @@ from version import __version__
 if os.path.exists("README.md"):
     with open("README.md", "r") as fh:
         long_description = fh.read()
+
 
 setup(
     name='OpenALPR-Webhook',
@@ -19,9 +21,8 @@ setup(
               'apps/alpr/routes/settings/maintenance', 'apps/alpr/routes/settings/maintenance/rq_dashboard',
               'apps/alpr/routes/settings/notifications', 'apps/alpr/routes/settings/profile',
               'apps/alpr/routes/settings/users', 'apps/alpr/routes/vehicle', 'apps/api', 'apps/authentication',
-              'apps/db', 'apps/downloads', 'apps/exceptions', 'apps/home', 'apps/static', 'apps/templates',
+              'apps/db', 'apps/exceptions', 'apps/home', 'apps/static/assets', 'apps/templates',
               'apps/uploads', 'nginx'],
-    include_package_data=True,
     url='https://github.com/mibs510/OpenALPR-Webhook',
     license='MIT',
     author='Connor McMillan',
