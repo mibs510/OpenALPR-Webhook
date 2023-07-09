@@ -12,13 +12,12 @@ It was designed with an emphasis on security to meet organization/business needs
 - 👉 IPBan (fail2ban for Flask) with [IPAbuseDB.com](https://ipabusedb.com) integration
 - 👉 Webhook endpoint security
 
-# ❗ This project is still in pre-release.
-
 # 🐛 Known Bugs
 - ~~Worker management needs reimplementation~~
   - ~~Currently working on this~~
 - Manually requeuing jobs fail
 - Update vulnerable packages (Flask, requests, Werkzeug)
+- Gunicorn with more than one worker has issues with Worker Manager Server
 - ~~Searching plates will only work if pagination position is on page 1~~
   - ~~This is a grid.js issue [#1314](https://github.com/grid-js/gridjs/issues/1314) [#1344](https://github.com/grid-js/gridjs/pull/1334) [#1311](https://github.com/grid-js/gridjs/issues/1311).~~
 
@@ -123,6 +122,8 @@ cd OpenALPR-Webhook
 # Backup databases 
 mkdir apps/db.backup
 cp apps/db/* apps/db.backup
+# To overwrite any changes to project files (excluding databases, logs, secrets, etc)
+git reset --hard
 # Get latest version of OpenALPR-Webhook
 git pull
 # Apply changes to the databases 

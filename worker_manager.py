@@ -1,7 +1,11 @@
 import logging
+import os
 import socket
 
 from worker_manager_enums import WMSCommand, WMSResponse
+
+# Used to launch Worker Manager Server
+python3 = os.path.abspath(os.path.dirname(__file__)) + "/venv/bin/python3"
 
 
 class WorkerManager:

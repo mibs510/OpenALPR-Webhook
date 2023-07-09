@@ -19,7 +19,7 @@ from flask_mail import Mail
 import log
 import version
 from apps.alpr.ipban_config import IPBanConfig
-from worker_manager import WorkerManager
+from worker_manager import WorkerManager, python3
 from worker_manager_enums import WorkerType, WMSCommand
 
 setproctitle.setproctitle("OpenALPR-Webhook")
@@ -96,7 +96,7 @@ def start_redis_workers():
         worker_manager_server = WorkerManager(WMSCommand.ACK)
         worker_manager_server.debug = True
         try:
-            subprocess.Popen(['python3', os.path.abspath(os.path.dirname(__file__) + "/..") +
+            subprocess.Popen([python3, os.path.abspath(os.path.dirname(__file__) + "/..") +
                               '/worker_manager_server.py'])
             time.sleep(3)
             worker_manager_server.send()

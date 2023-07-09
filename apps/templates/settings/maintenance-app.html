@@ -64,15 +64,10 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-sm-12">
-                                        <p>The Worker Manager Server is responsible for spawning and terminating Redis workers as needed. One worker is spawned for every agent and camera that is enabled. This allows OpenALPR-Webhook to scale as needed without interruptions. <br>Because Redis forks workers on the process level, the Worker Manager Server only runs on *nix systems.</p>
-                                        <br>
-                                        <p>Restart: Restart the server when experiencing issues with worker allocation. This will not restart the webserver.</p>
-                                        <br>
                                         <p>Shutdown: Shutting down the server is essential when performing a soft restart on the webserver. This makes sure that no worker turns to a zombie.</p>
                                         <br>
                                         <p>These actions are not needed when performing a system reboot.</p>
                                         <div class="d-flex justify-content-lg-between mt-4">
-                                            <button type="button" class="btn btn btn-info" onclick="smtpTest()" disabled>Restart</button>
                                             <button type="button" class="btn btn-danger" onclick="stopWMS()">Shutdown</button>
                                         </div>
                                     </div>
@@ -92,34 +87,50 @@
             <script>
                 // Reset report settings
                 function stopWMS() {
-                    $.ajax({
-                        type: 'POST',
-                        url:  "{{ url_for('maintenance.shutdown_wms') }}",
-                        async: true,
-                        cache: false,
-                        contentType: false,
-                        processData: false,
-                        beforeSend: function(){
-                            Swal.fire({
-                                text: 'Shutting down Worker Manager Server...',
-                                allowOutsideClick: false,
-                                didOpen: () => {
-                                    Swal.showLoading()
+                    Swal.fire({
+                        title: "Are you sure?",
+                        text: "Shutting down the Worker Manager Server will require a server restart",
+                        showCancelButton: true,
+                        icon: "warning",
+                        cancelButtonText: "Cancel",
+                        confirmButtonText: "Yes, shut it down!",
+                        buttonsStyling: false, customClass: {cancelButton:'mb-2 me-2 btn btn-primary', confirmButton: 'mb-2 me-2 btn btn-danger'}
+                    }).then((isConfirm) => {
+                        if (isConfirm.isConfirmed) {
+                            $.ajax({
+                                type: 'POST',
+                                url:  "{{ url_for('maintenance.shutdown_wms') }}",
+                                async: true,
+                                cache: false,
+                                contentType: false,
+                                processData: false,
+                                beforeSend: function (){
+                                    Swal.fire({
+                                        text: 'Shutting down Worker Manager Server...',
+                                        didOpen: () => {
+                                            Swal.showLoading()
+                                        },
+                                    })
                                 },
+                                error : function(request,error) {
+                                    Swal.fire( {icon: 'error', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                        text: JSON.parse(request.responseText)['error']}).then(() => {
+                                            location.reload();
+                                        });
+                                },
+                                success : function(res) {
+                                    Swal.fire( {icon: 'success', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
+                                        text: res['message']}).then(() => {
+                                            location.reload();
+                                        });
+                                },
+                                complete: function(){
+                                    Swal.hideLoading()
+                                }
                             })
-                        },
-                        error: function(request,error) {
-                            Swal.fire( {icon: 'error', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
-                                text: JSON.parse(request.responseText)['error']})
-                        },
-                        success: function(res) {
-                            Swal.fire( {icon: 'success', buttonsStyling: false, customClass: {confirmButton: 'btn btn-primary'},
-                                text: res['message']})
-                        },
-                        complete: function(){
-                            Swal.hideLoading()
                         }
-                    })
+                        return false;
+                    });
                 }
                 // Tooltips
                 $(document).ready(function(){
