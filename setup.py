@@ -18,7 +18,7 @@ setup(
               'apps/alpr/routes/settings/cameras/manufacturers', 'apps/alpr/routes/settings/general',
               'apps/alpr/routes/settings/maintenance', 'apps/alpr/routes/settings/maintenance/rq_dashboard',
               'apps/alpr/routes/settings/notifications', 'apps/alpr/routes/settings/profile',
-              'apps/alpr/routes/settings/users', 'apps/alpr/routes/settings/vehicle', 'apps/api', 'apps/authentication',
+              'apps/alpr/routes/settings/users', 'apps/alpr/routes/vehicle', 'apps/api', 'apps/authentication',
               'apps/db', 'apps/downloads', 'apps/exceptions', 'apps/home', 'apps/static', 'apps/templates',
               'apps/uploads', 'nginx'],
     include_package_data=True,
@@ -26,7 +26,7 @@ setup(
     license='MIT',
     author='Connor McMillan',
     author_email='connor@mcmillan.website',
-    description='OpenALPR-Webhook is a self-hosted web application that accepts Rekor Scout™ POST data allowinglonger '
+    description='OpenALPR-Webhook is a self-hosted web application that accepts Rekor Scout™ POST data allowing longer '
                 'data retention. It was designed with an emphasis on security to meet organization/business needs.',
     long_description=long_description,
     python_requires=">=3.10",
