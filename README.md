@@ -52,10 +52,6 @@ Additionally, you can set Redis server to start automatically. See the Bare Serv
     - Parameters should be set to `--host=0.0.0.0 --port=8080`
     - Add `DEBUG=True` into Environment variables
     - Set the Working directory to `<OpenALPR-Webhook>`
-  - Redis Worker Server
-    - Add a new Run/Debug Configuration named "Worker Manager Server"
-    - Set the Script path to `<OpenALPR-Webhook>/apps/workers.py`
-    - Set the Working directory to `<OpenALPR-Webhook>/apps`
 
 
 # Installation
@@ -70,6 +66,7 @@ git clone https://github.com/mibs510/OpenALPR-Webhook
 cd OpenALPR-Webhook
 python3 -m venv ./venv
 source ./venv/bin/activate
+# Due to a dependency issue with flask-dance, flask-dance needs to be installed separately from all other packages
 pip3 install flask-dance
 pip3 install -r requirements.txt
 ./app.py --host=0.0.0.0 --port=8080
@@ -124,7 +121,7 @@ Optional: `journalctl -n 50 -f`
 # Log into OpenALPR-Webhook
 # Go to Settings/Maintenance/App (http://OpenALPR-Webhook:8080/settings/maintenance/app)
 # Shutdown Worker Manager Server
-# Go to the root directory of the OpenALPR-Webhook
+# Go to the root directory of OpenALPR-Webhook
 cd OpenALPR-Webhook
 # Backup databases
 mkdir apps/db.backup

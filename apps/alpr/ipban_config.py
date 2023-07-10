@@ -10,7 +10,7 @@ class IPBanConfig:
     abuse_IPDB_config_report = False
     abuse_IPDB_config_load = False
     abuse_IPDB_config_key = ""
-    record_dir = "logs/"
+    record_dir = "logs/ipban"
 
     config = configparser.ConfigParser()
 
