@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.0.10 (2023-07-10)
+
+### Fix
+
+* **ipban_config.py:** Changed logdir ([`3b0af32`](https://github.com/mibs510/OpenALPR-Webhook/commit/3b0af323c5dba87ce1873527217d59114b089cb7))
+
 ## v0.0.9 (2023-07-09)
 
 ### Fix
