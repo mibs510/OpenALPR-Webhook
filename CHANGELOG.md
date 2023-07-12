@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.2 (2023-07-12)
+
+### Fix
+
+* **README.md + cache_service:** Update last_seen ([`4263822`](https://github.com/mibs510/OpenALPR-Webhook/commit/4263822380a946d8cdf32ec6fbf4509dcad8e7c9))
+
 ## v1.0.1 (2023-07-12)
 
 ### Fix
