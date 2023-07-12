@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.0 (2023-07-12)
+
+### Fix
+
+* **a lot:** Copyright + Unqlite ([`d548a4a`](https://github.com/mibs510/OpenALPR-Webhook/commit/d548a4a8a4efc98dfaecb61f5c17f2aefbc587eb))
+
+### Breaking
+
+* Does not break anything... maybe the ability to import unqlite databases. Using this break to bump the major as a means of officially releasing v1 ([`d548a4a`](https://github.com/mibs510/OpenALPR-Webhook/commit/d548a4a8a4efc98dfaecb61f5c17f2aefbc587eb))
+
 ## v0.0.10 (2023-07-10)
 
 ### Fix
