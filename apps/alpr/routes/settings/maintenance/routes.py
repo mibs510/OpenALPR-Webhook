@@ -1,22 +1,33 @@
+#  Copyright (c) 2023. Connor McMillan
+#  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+#  following conditions are met:
+#
+#  1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+#  disclaimer.
+#
+#  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+#  following disclaimer in the documentation and/or other materials provided with the distribution.
+#
+#  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+#  products derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES,
+#  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+#  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
 import logging
 import platform
 
 from flask import render_template, jsonify
 from flask_login import login_required, current_user
 
-import apps.alpr.get as Get
-from apps.alpr.models.alpr_alert import ALPRAlert
-from apps.alpr.models.alpr_group import ALPRGroup
 from apps.alpr.models.cache import Cache, CameraCache, AgentCache
-from apps.alpr.models.vehicle import Vehicle
 from apps.alpr.routes.settings.maintenance import blueprint
-from apps.api.schemas.alpr_alert_schema import ALPRAlertSchema
-from apps.api.schemas.alpr_group_schema import ALPRGroupSchema
-from apps.api.schemas.vehicle_schema import VehicleSchema
-from apps.api.service.alpr_alert_service import ALPRAlertService
-from apps.api.service.alpr_group_service import ALPRGroupService
-from apps.api.service.vehicle_service import VehicleService
-from apps.authentication.models import User
 from apps.authentication.routes import ROLE_ADMIN
 from worker_manager import WorkerManager
 from worker_manager_enums import WMSCommand
@@ -39,76 +50,6 @@ def init_cache_db():
     cache.init()
 
     return jsonify({'msg': 'cache_initiated'}), 200
-
-
-@blueprint.route('/import/db', methods=["GET"])
-@login_required
-def import_db():
-    if current_user.role != ROLE_ADMIN:
-        return render_template('home/page-403.html')
-
-    # Schemas
-    alpr_alert_schema = ALPRAlertSchema()
-    alpr_group_schema = ALPRGroupSchema()
-    vehicle_schema = VehicleSchema()
-
-    # Services
-    alpr_alert_service = ALPRAlertService()
-    alpr_group_service = ALPRGroupService()
-    vehicle_service = VehicleService()
-
-    get = Get.Get()
-    group_collection = get.collection(database="group")
-    logging.info("len(group_collection) = {}".format(len(group_collection)))
-    alert_collection = get.collection(database="alert")
-    logging.info("len(alert_collection) = {}".format(len(alert_collection)))
-    vehicle_collection = get.collection(database="vehicle")
-    logging.info("len(vehicle_collection) = {}".format(len(vehicle_collection)))
-
-    for i in range(len(group_collection)):
-        request_data = group_collection[i]
-        try:
-            validated_data = alpr_group_schema.load(request_data)
-            alpr_group_service.create(validated_data)
-        except Exception as ex:
-            logging.debug("transfer_db: (alpr_group) ex = {}".format(ex))
-            logging.debug("transfer_db: (alpr_group) request_data = {}".format(request_data))
-    for i in range(len(alert_collection)):
-        request_data = alert_collection[i]
-        try:
-            validated_data = alpr_alert_schema.load(request_data)
-            alpr_alert_service.create(validated_data)
-        except Exception as ex:
-            logging.debug("transfer_db: (alpr_alert) ex = {}".format(ex))
-            logging.debug("transfer_db: (alpr_alert) request_data = {}".format(request_data))
-    for i in range(len(vehicle_collection)):
-        request_data = vehicle_collection[i]
-        try:
-            validated_data = vehicle_schema.load(request_data)
-            vehicle_service.create(validated_data)
-        except Exception as ex:
-            logging.debug("transfer_db: (vehicle) ex = {}".format(ex))
-            logging.debug("transfer_db: (vehicle) request_data = {}".format(request_data))
-
-    # Rewrite the API_TOKEN to that of the super_admin
-    super_admin = User.find_by_id(1)
-    if super_admin:
-        alpr_group = ALPRGroup()
-        alpr_alert = ALPRAlert()
-        vehicle = Vehicle()
-
-        for record in alpr_group.query:
-            record.custom_data['API_KEY'] = super_admin.api_token
-        for record in alpr_alert.query:
-            record.custom_data['API_KEY'] = super_admin.api_token
-        for record in vehicle.query:
-            record.custom_data['API_KEY'] = super_admin.api_token
-
-        alpr_group.save()
-        alpr_alert.save()
-        vehicle.save()
-
-    return jsonify({'msg': "Records migrated to SQLite!"}), 200
 
 
 @blueprint.route('/shutdown/wms', methods=["POST"])

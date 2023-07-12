@@ -16,7 +16,8 @@ It was designed with an emphasis on security to meet organization/business needs
 - ~~Worker management needs reimplementation~~
   - ~~Currently working on this~~
 - Manually requeuing jobs fail
-- Update vulnerable packages (Flask, requests, Werkzeug)
+- Updating vulnerable packages (Flask, requests, Werkzeug) fail.
+  - Cannot install flask-dance alongside other packages
 - Gunicorn with more than one worker has issues with Worker Manager Server
 - ~~Searching plates will only work if pagination position is on page 1~~
   - ~~This is a grid.js issue [#1314](https://github.com/grid-js/gridjs/issues/1314) [#1344](https://github.com/grid-js/gridjs/pull/1334) [#1311](https://github.com/grid-js/gridjs/issues/1311).~~
@@ -42,6 +43,7 @@ It was designed with an emphasis on security to meet organization/business needs
   - Export/import settings
 - Add audit logs for each action
 - Add support for 2FA/MFA
+- Package application with [briefcase](https://github.com/beeware/briefcase)
 
 # Development
 - Run/Debug Configuration
@@ -93,8 +95,9 @@ Restart=always
 WantedBy=multi-user.target
 ```
 
-Be sure to modify `User`, `WorkingDirectory`, and `ExecStart`
-`User` should not be a user with root privileges
+Be sure to modify `User`, `WorkingDirectory`, and `ExecStart`.
+
+`User` should not have root privileges without invoking sudo!
 
 Then execute:
 
@@ -119,8 +122,9 @@ Optional: `journalctl -n 50 -f`
 
 ```shell
 # Log into OpenALPR-Webhook
-# Go to Settings/Maintenance/App (http://OpenALPR-Webhook:8080/settings/maintenance/app)
-# Shutdown Worker Manager Server
+# Go to Settings/Maintenance/App (http://OpenALPR-Webhook:8080/settings/maintenance/app) and Shutdown Worker Manager Server
+# Shutdown web server
+sudo systemctl stop oalpr-wh
 # Go to the root directory of OpenALPR-Webhook
 cd OpenALPR-Webhook
 # Backup databases
@@ -135,6 +139,8 @@ git pull
 flask db init --multidb
 flask db migrate
 flask db upgrade
+# Start web server
+sudo systemctl start oalpr-wh
 ```
 
 # Documentation
