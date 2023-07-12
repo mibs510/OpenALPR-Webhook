@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.1 (2023-07-12)
+
+### Fix
+
+* **setup.py + index.html:** Packages & url_for() ([`2067c1c`](https://github.com/mibs510/OpenALPR-Webhook/commit/2067c1cc021bcc2cc42f467b67df8d1d606d32a6))
+
 ## v1.0.0 (2023-07-12)
 
 ### Fix
