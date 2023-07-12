@@ -34,7 +34,7 @@ setup(
     name='OpenALPR-Webhook',
     version=__version__,
     platforms='linux',
-    packages=['apps', 'apps/alpr', 'apps/alpr/ipban', 'apps/alpr/models', 'apps/alpr/routes', 'apps/alpr/routes/alert',
+    packages=['apps', 'apps/alpr', 'apps/alpr/models', 'apps/alpr/routes', 'apps/alpr/routes/alert',
               'apps/alpr/routes/alerts', 'apps/alpr/routes/alerts/custom', 'apps/alpr/routes/alerts/rekor',
               'apps/alpr/routes/capture', 'apps/alpr/routes/search', 'apps/alpr/routes/settings',
               'apps/alpr/routes/settings/agents', 'apps/alpr/routes/settings/cameras',
