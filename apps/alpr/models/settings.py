@@ -36,7 +36,7 @@ from apps.exceptions.exception import InvalidUsage
 
 
 with open(Path(os.path.abspath(os.path.dirname(__file__ + "../../../../") +
-                               "/static/assets/img/brand/fishing-hook-bl.svg")).absolute(), "rb") as svg_file:
+                               "/static/assets/img/brand/icon-light.svg")).absolute(), "rb") as svg_file:
     default_org_logo = base64.b64encode(svg_file.read()).decode("utf-8")
 
 
