@@ -97,16 +97,14 @@ WantedBy=multi-user.target
 
 Be sure to modify `User`, `WorkingDirectory`, and `ExecStart`.
 
-`User` should not have root privileges without invoking sudo!
+> ⚠️ `User` should not have root privileges without invoking sudo!
 
 Then execute:
-
-`sudo systemctl daemon-reload`
-
-`sudo systemctl enable oalpr-wh`
-
-`sudo systemctl start oalpr-wh`
-
+```shell
+sudo systemctl daemon-reload
+sudo systemctl enable oalpr-wh
+sudo systemctl start oalpr-wh
+```
 Optional: `journalctl -n 50 -f`
 
 ### New Instance

@@ -96,6 +96,7 @@ class CacheService:
                 else:
                     # Always overwrite the label, it may have changed
                     agent_uid.agent_label = self.request['web_server_config']['agent_label']
+                    agent_uid.last_seen = datetime.utcnow()
                 agent_uid.save()
 
                 # Cameras
@@ -107,6 +108,7 @@ class CacheService:
                 else:
                     # Always overwrite the label, it may have changed
                     camera_id.camera_label = self.request['web_server_config']['camera_label']
+                    camera_id.last_seen = datetime.utcnow()
                 camera_id.save()
 
                 # Check to see if we need to send an alert
