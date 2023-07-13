@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.3 (2023-07-13)
+
+### Fix
+
+* **sidebar.html:** Img src ([`1792473`](https://github.com/mibs510/OpenALPR-Webhook/commit/1792473a4888acf05bfabf4ff9d2c2543b365dc7))
+
 ## v1.0.2 (2023-07-12)
 
 ### Fix
