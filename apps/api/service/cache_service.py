@@ -19,8 +19,6 @@
 #  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-
-from rq import Retry
 import json
 import logging
 from datetime import datetime
@@ -54,6 +52,11 @@ class CacheService:
         # Create a row if the year doesn't exist
         if not self.cache:
             self.cache = Cache()
+
+        # Update time
+        self.now = datetime.now()
+        self.this_year = self.now.year
+        self.this_month = self.now.month - 1
 
     def update(self):
         try:

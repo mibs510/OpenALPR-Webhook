@@ -474,7 +474,7 @@ class Cache(db.Model):
             return "N/A"
 
         length = len(list(cache.month[month - 1]['regions']))
-        return str(list(cache.month[month - 1]['regions'].keys())[1]) if length >= 1 else "N/A"
+        return str(list(cache.month[month - 1]['regions'].keys())[1]) if length > 1 else "N/A"
 
     def get_top_region_count(self, year: int, month: int) -> int:
         cache = self.filter_by_year(year)
@@ -490,7 +490,7 @@ class Cache(db.Model):
             return 0
 
         length = len(list(cache.month[month - 1]['regions']))
-        return int(list(cache.month[month - 1]['regions'].values())[1]) if length >= 1 else 0
+        return int(list(cache.month[month - 1]['regions'].values())[1]) if length > 1 else 0
 
     def init(self):
         try:
