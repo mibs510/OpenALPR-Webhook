@@ -94,8 +94,8 @@ def main() -> None:
     try:
         time_wait = helpers.netstat()
         if time_wait != 0:
-            logging.debug("time_wait = {}".format(time_wait))
-            with progressbar(range(int(time_wait)), redirect_stdout=True):
+            logging.debug("time_wait = {}".format(round(time_wait + 1)))
+            for i in progressbar(range(round(time_wait + 1)), redirect_stdout=True):
                 time.sleep(0.7)
     except Exception as ex:
         logging.exception(ex)
