@@ -2,6 +2,21 @@
 
 
 
+## v1.0.5 (2024-01-19)
+
+### Fix
+
+* fix(cache): out of index
+
+Fixed condition to prevent out of index error in get_chart_labels
+
+Signed-off-by: Connor McMillan &lt;connor@mcmillan.website&gt; ([`3547c95`](https://github.com/mibs510/OpenALPR-Webhook/commit/3547c954a6530fe850ed5cd2df817309a7ea9960))
+
+### Unknown
+
+* Merge remote-tracking branch &#39;origin/master&#39; ([`511fedd`](https://github.com/mibs510/OpenALPR-Webhook/commit/511feddf7afc3837121a7132792139cbbf042708))
+
+
 ## v1.0.4 (2023-08-02)
 
 ### Documentation
